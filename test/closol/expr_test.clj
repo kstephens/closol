@@ -9,9 +9,9 @@
     (is (enumerate-subexpressions 'x)
       '(x))
     (is (enumerate-subexpressions '(+ 1 2))
-      '((+ 1 2) + 1 2))
+      '((+ 1 2) 1 2))
     (is (enumerate-subexpressions '(* 2 (+ 1 2) (- 1 x)))
-      '((* 2 (+ 1 2) (- 1 x)) * 2 (+ 1 2) + 1 2 (- 1 x) - 1 x))
+      '((* 2 (+ 1 2) (- 1 x)) 2 (+ 1 2) 1 2 (- 1 x) 1 x))
     )
   (testing "expression-complexity"
     (is (expression-complexity '1)
