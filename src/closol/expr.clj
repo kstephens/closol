@@ -8,8 +8,9 @@
     :else (list expr)))
 
 (defn expression-complexity [expr]
+  "Returns a basic complexity metric."
   (cond
-    (list? expr)   (reduce + 2 (map expression-complexity expr))
+    (list? expr)   (reduce + 2 (map expression-complexity (rest expr)))
     (symbol? expr) 1
     :else          0))
 
