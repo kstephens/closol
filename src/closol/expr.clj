@@ -1,6 +1,7 @@
 (ns closol.expr)
 
 (defn enumerate-subexpressions [expr]
+  "Enumerates all improper subexpressions, including expr."
   (cond
     (list? expr)
       (if (empty? expr) '()
