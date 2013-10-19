@@ -4,7 +4,7 @@
   (cond
     (list? expr)
       (if (empty? expr) '()
-        (concat (list expr) (apply concat (map enumerate-subexpressions expr))))
+        (cons expr (apply concat (map enumerate-subexpressions expr))))
     :else (list expr)))
 
 (defn expression-complexity [expr]
