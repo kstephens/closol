@@ -9,8 +9,7 @@
 
 (defn expression-complexity [expr]
   (cond
-    (list? expr) (reduce + 2 (map expression-complexity expr))
+    (list? expr)   (reduce + 2 (map expression-complexity expr))
     (symbol? expr) 1
-    :else 0
-    ))
+    :else          0))
 
