@@ -45,7 +45,13 @@
 ;; (r) => [0.0, 1.0)
 ;; (r n) => [0, n - 1]
 ;;
-(defn make-random [s]
+(defn make-random
+"Returns a procedure r which returns pseudo-random values:
+
+(r)   => [0.0, 1.0)
+(r n) => [0, n - 1]
+"
+  [s]
   (let [ seed (md5 (.getBytes (str s)))
          state (ref seed) ]
     (fn [& args]
@@ -57,12 +63,14 @@
           (empty? (rest args))  (trunc (/ (* n (first args)) md5-denom))
           :else false))))) ;; ERROR
 
-(defn random-element [r seq]
+(defn random-element
   "Return a random element from seq."
+  [r seq]
   (nth seq (r (count seq))))
 
-(defn random-merge [r a b]
+(defn random-merge
   "Randomly merge elements from sequences a and b."
+  [r a b]
   (cond
     (empty? a)  b
     (empty? b)  a
