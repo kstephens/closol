@@ -22,7 +22,7 @@
   (* 1.0 md5-denom))
 
 (defn valid-as-long? [x]
-  (and (<= java.lang.Long/MIN_VALUE x) (<= x java.lang.Long/MAX_VALUE)))
+  (and (<= Long/MIN_VALUE x) (<= x Long/MAX_VALUE)))
 
 (defn trunc [x]
   (cond
