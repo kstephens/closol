@@ -6,7 +6,7 @@
 (defn make-rectangular [a b] a)
 (defn make-polar [a b] a)
 (defn real-part [x] x)
-(defn magnitude [x] x)
+(defn magnitude [x] (Math/abs x))
 (defn angle [x] 0)
 (defn positive? [x] (> x 0))
 
@@ -18,10 +18,10 @@
       x)))
 
 (defn v-neg [x] (- x))
-(defn v-+ [x y] (+ x y))
-(defn v-- [x y] (- x y))
-(defn v-* [x y] (* x y))
-(defn v-div [x y] ;; v-/ is an invalid symbol
+(defn v-add [x y] (+ x y))
+(defn v-sub [x y] (- x y))
+(defn v-mul [x y] (* x y))
+(defn v-div [x y]
   (if (zero? y)
     x
     (/ x y)))
