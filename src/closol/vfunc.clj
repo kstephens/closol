@@ -92,12 +92,12 @@
 ;; Linear Interpolation:
 ;; x in [0, 1] => [x0, x1].
 (defn v-lerp [x x0 x1]
-  (+ (* x0 (- 1 x)) (* x1 x)))
+  (+ (* x0 (- 1.0 x)) (* x1 x)))
   
 ;; Inverse of lerp:
 ;; x in [x0, x1] => [0, 1].
 (defn v-lerp-1 [x x0 x1]
   (if (= x1 x0)
     0
-    (/ (- x x0) (- x1 x0))))
+    (/ (float (- x x0)) (- x1 x0))))
 
