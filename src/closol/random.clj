@@ -68,17 +68,20 @@
 (defn random-sequence
   "Return a random sequence from seq."
   [r seq]
-  (loop [out [] in seq]
-    (if (empty? in) out
+  (lazy-seq
+    (loop [out [] in seq]
+      (if (empty? in) out
       (let [x (take-at (r (count in)) in)]
-        (recur (cons (first x) out) (second x))))))
+        (recur (cons (first x) out) (second x)))))))
 
 (defn random-merge
   "Randomly merge elements from sequences a and b."
   [r a b]
-  (cond
-    (empty? a)  b
-    (empty? b)  a
-    :else       (cons
-                  (first (if (= (r 2) 0) a b))
-                  (random-merge r (rest a) (rest b)))))
+  (lazy-seq
+    (cond
+      (empty? a)  b
+      (empty? b)  a
+      :else       (cons
+                    (first (if (= (r 2) 0) a b))
+                    (random-merge r (rest a) (rest b))))))
+
