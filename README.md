@@ -1,14 +1,13 @@
 # closol
 
-A Clojure library designed to ... well, that part is up to you.
+Generate and mutate expression trees and render them as images.
 
 ## Usage
 
-FIXME
+    lein test && open test.png
 
 ## License
 
-Copyright © 2013 FIXME
+Copyright © 2013 Kurt stephens
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+MIT License.
