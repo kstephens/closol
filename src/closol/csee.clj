@@ -45,7 +45,7 @@ Rewrite as a let* form with all complex subexpressions as local bindings to new 
       expr
       (let [
              ;; Map bindings to CSEs.
-             be             (zip (map #(symbol (str "%g" %1)) (range 0 (count cses))) cses)
+             be             (map-indexed #(vector (symbol (str "%g" %1)) %2) cses)
              ; _ (println (list 'be= be))
              ;; Map let* bindings to accumulative CSE values.
              binding-exprs  (expand-binding-exprs be)
