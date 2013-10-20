@@ -1,4 +1,5 @@
 (ns closol.match)
+;; NOT FINISHED PORTING TO CLOJURE.
 
 (def not-found ['not-found])
 (defn match [pattern datum dictionary]
