@@ -55,7 +55,7 @@
   (let [ seed (md5 (.getBytes (str s)))
          state (ref seed) ]
     (fn [& args]
-      (let [ new-state (md5 (bconcat (deref state) seed))
+      (let [ new-state (md5 (bconcat @state seed))
              n         (ubytes-to-integer new-state) ]
         (ref-set state new-state)
         (cond
