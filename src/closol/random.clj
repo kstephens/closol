@@ -68,6 +68,17 @@
   [r seq]
   (nth seq (r (count seq))))
 
+(defn take-at [i seq]
+  [(nth seq i) (concat (take i seq) (drop (+ i 1) seq))])
+
+(defn random-sequence
+  "Return a random sequence from seq."
+  [r seq]
+  (loop [out [] in seq]
+    (if (empty? in) out
+      (let [x (take-at (r (count in)) in)]
+        (recur (cons (first x) out) (second x))))))
+
 (defn random-merge
   "Randomly merge elements from sequences a and b."
   [r a b]
