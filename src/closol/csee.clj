@@ -1,6 +1,7 @@
 (ns closol.csee
-  (:require [closol.expr :refer :all])
-  (:require [clojure.walk :refer :all]))
+  (:require
+    [closol.expr :refer :all]
+    [clojure.walk :refer :all]))
 
 (defn expand-binding-exprs
 "Given ([b1 e1] [b2 e2] [b3 e3] ...)

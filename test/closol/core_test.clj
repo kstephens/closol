@@ -1,6 +1,7 @@
 (ns closol.core-test
-  (:require [clojure.test :refer :all]
-            [closol.core :refer :all]))
+  (:require
+    [clojure.test :refer :all]
+    [closol.core :refer :all]))
 
 (deftest a-test
   (testing "OK"

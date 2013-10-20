@@ -1,6 +1,7 @@
 (ns closol.csee-test
-  (:require [clojure.test :refer :all]
-            [closol.csee :refer :all]))
+  (:require
+    [clojure.test :refer :all]
+    [closol.csee :refer :all]))
 
 (deftest a-test
   (testing "csee"

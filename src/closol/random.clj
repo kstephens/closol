@@ -40,11 +40,6 @@
     (dorun (map #(System/arraycopy %2 0 out %1 %3) offsets arrays sizes))
     out))
 
-;; Returns a procedure r:
-;;
-;; (r) => [0.0, 1.0)
-;; (r n) => [0, n - 1]
-;;
 (defn make-random
 "Returns a procedure r which returns pseudo-random values:
 

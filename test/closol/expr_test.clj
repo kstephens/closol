@@ -1,6 +1,7 @@
 (ns closol.expr-test
-  (:require [clojure.test :refer :all]
-            [closol.expr :refer :all]))
+  (:require
+    [clojure.test :refer :all]
+    [closol.expr :refer :all]))
 
 (deftest a-test
   (testing "enumerate-subexpressions"

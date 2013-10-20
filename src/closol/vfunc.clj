@@ -1,6 +1,6 @@
 (ns closol.vfunc
-  (:require [clojure.math.numeric-tower :as nt]
-    ))
+  (:require
+    [clojure.math.numeric-tower :as nt]))
 
 ;; Complex numbers are undefined in clojure.
 (defn make-rectangular [a b] a)

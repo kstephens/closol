@@ -1,6 +1,7 @@
 (ns closol.random-test
-  (:require [clojure.test :refer :all]
-            [closol.random :refer :all]))
+  (:require
+    [clojure.test :refer :all]
+    [closol.random :refer :all]))
 
 (deftest a-test
   (let [r (make-random 20130827)]
