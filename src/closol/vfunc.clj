@@ -1,90 +1,102 @@
-(ns closol.vfunc)
-(define v-neg -)
+(ns closol.vfunc
+  (:require [clojure.math.numeric-tower :as nt]
+    ))
 
-(define (v-real-part x)
-  (set! x (real-part x))
-  (if (eqv? x +nan.0)
-    0
-    x))
+;; Complex numbers are undefined in clojure.
+(defn make-rectangular [a b] a)
+(defn make-polar [a b] a)
+(defn real-part [x] x)
+(defn magnitude [x] x)
+(defn angle [x] 0)
+(defn positive? [x] (> x 0))
 
-(define v-+ +)
-(define v-- -)
-(define v-* *)
-(define (v-/ x y)
+(defn isNaN? [x] (Double/isNaN x))
+(defn v-real-part [xx]
+  (let [x (real-part xx)]
+    (if (isNaN? x)
+      0
+      x)))
+
+(defn v-neg [x] (- x))
+(defn v-+ [x y] (+ x y))
+(defn v-- [x y] (- x y))
+(defn v-* [x y] (* x y))
+(defn v-div [x y] ;; v-/ is an invalid symbol
   (if (zero? y)
     x
     (/ x y)))
   
-(define (v-expt x y)
+(defn v-expt [x y]
   (if (zero? x)
     0
-    (expt x y)))
+    (nt/expt x y)))
 
-
-(define (v-mod-1 x y)
-  (let ((d (v-/ x y)))
-    (* (- d (floor d)) y)))
+(defn v-mod-1 [x y]
+  (let [d (v-div x y)]
+    (* (- d (nt/floor d)) y)))
   
-(define (v-mod x y)
-  (set! y (v-real-part y))
-  (if (zero? y)
-    x
-    (v-mod-1 (v-real-part x) y)))
+(defn v-mod [x yy]
+  (let [y (v-real-part yy)]
+    (if (zero? y)
+      x
+      (v-mod-1 (v-real-part x) y))))
   
-(define (v-floor x)
-  (floor (v-real-part x)))
-  
+(defn v-floor [x]
+  (nt/floor (v-real-part x)))
 
 ;; Trancendentals
-(define v-sin sin)
-(define v-cos cos)
-(define (v-atan x y)
-  (set! x (v-real-part x))
-  (set! y (v-real-part y))
-  (if (and (zero? x) (zero? y))
-    0
-    (atan x y)))
-  
-(define (v-make-rectangular a b)
+(defn v-sin [x] (Math/sin x))
+(defn v-cos [x] (Math/cos x))
+(defn v-atan [xx yy]
+  (let [x (v-real-part xx)
+        y (v-real-part yy)]
+    (if (and (zero? x) (zero? y))
+      0
+      (Math/atan2 x y))))
+
+(defn v-make-rectangular [a b]
   (make-rectangular (v-real-part a) (v-real-part b)))
 
-(define (v-make-polar a b)
+(defn v-make-polar [a b]
   (make-rectangular (v-real-part a) (v-real-part b)))
   
-(define v-magnitude magnitude)
+(defn v-magnitude [x] (magnitude x))
 
-(define (v-angle a)
+(defn v-angle [a]
   (if (zero? a)
     0
     (angle a)))
   
 ;; Conditionals
-(define (v-if a b c)
+(defn v-if [a b c]
   (if (positive? (v-real-part a)) b c))
   
-(define (v-clamp x a b)
-  (set! x (v-real-part x))
-  (set! a (v-real-part a))
-  (set! b (v-real-part b))
-  (if (> a b)
-    (let ((t a))
-      (set! a b)
-      (set! b t))
-    )
-  (if (< x a)
-    a
-    (if (> x b)
-      b
-      x)))
+(defn v-clamp [xx aa bb]
+  (let [
+         x (v-real-part xx)
+         a (v-real-part aa)
+         b (v-real-part bb)
+         ]
+    (if (< a b)
+      (if (< x a)
+        a
+        (if (> x b)
+          b
+          x))
+      (if (< x b)
+        b
+        (if (> x a)
+          a
+          x)))))
   
 ;; Linear Interpolation:
 ;; x in [0, 1] => [x0, x1].
-(define (v-lerp x x0 x1)
+(defn v-lerp [x x0 x1]
   (+ (* x0 (- 1 x)) (* x1 x)))
   
 ;; Inverse of lerp:
 ;; x in [x0, x1] => [0, 1].
-(define (v-lerp-1 x x0 x1)
+(defn v-lerp-1 [x x0 x1]
   (if (= x1 x0)
     0
     (/ (- x x0) (- x1 x0))))
