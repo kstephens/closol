@@ -50,9 +50,8 @@
   (let [ seed (md5 (.getBytes (str s)))
          state (ref seed) ]
     (fn [& args]
-      (let [ new-state (md5 (bconcat @state seed))
+      (let [ new-state (alter state #(md5 (bconcat %1 seed)))
              n         (ubytes-to-integer new-state) ]
-        (ref-set state new-state)
         (cond
           (empty? args)         (/ n md5-denom-float)
           (empty? (rest args))  (trunc (/ (* n (first args)) md5-denom))
