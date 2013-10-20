@@ -1,6 +1,6 @@
 # closol
 
-Generate and mutate expression trees and render them as images.
+Generate and mutate expression trees and render them as images in Clojure.
 
 ## Usage
 
