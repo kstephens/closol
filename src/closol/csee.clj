@@ -29,7 +29,7 @@ Where
 "Common Sub-Expression Elimination
 
 Assume expr is a simple s-expr (no let, lambda or other special forms)
-Rewrite as a let* form with all subexpressions as local bindings to new symbols.
+Rewrite as a let* form with all complex subexpressions as local bindings to new symbols.
 "
   [expr]
   (let [
@@ -37,7 +37,7 @@ Rewrite as a let* form with all subexpressions as local bindings to new symbols.
          exprs       (reverse (filter #(not (or (symbol? %1) (number? %1))) (enumerate-subexpressions expr)))
          ;; Count the number of times a subexpression is referenced.
          occurances  (frequencies exprs)
-         ;; Common Subexpressions: all subexpressions that are referenced more than once.
+         ;; Common Subexpressions: all subexpressions that occur more than once.
          cses        (keys (filter #(> (val %1) 1) occurances))
          ; _ (println (list 'cses= cses))
          ]
