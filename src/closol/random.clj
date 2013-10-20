@@ -75,13 +75,13 @@
         (recur (cons (first x) out) (second x)))))))
 
 (defn random-merge
-  "Randomly merge elements from sequences a and b."
-  [r a b]
-  (lazy-seq
-    (cond
-      (empty? a)  b
-      (empty? b)  a
-      :else       (cons
-                    (first (if (= (r 2) 0) a b))
-                    (random-merge r (rest a) (rest b))))))
+  "Randomly merge elements from sequences."
+  ([r a b & seqs] (random-merge r (concat [a b] seqs)))
+  ([r seqs]
+    (lazy-seq
+      (let [seqs (filter seq seqs)]
+        (if (empty? seqs) '()
+          (cons
+            (first (random-element r seqs))
+            (random-merge r (map rest seqs))))))))
 
