@@ -2,9 +2,6 @@
   (:require [closol.expr :refer :all])
   (:require [clojure.walk :refer :all]))
 
-(defn zip [a b]
-  (map vector a b))
-
 (defn expand-binding-exprs
 "Given ([b1 e1] [b2 e2] [b3 e3] ...)
 Returns ([b1 e1] [b2 x2] [b3 x3] ...)
