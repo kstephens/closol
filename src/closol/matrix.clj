@@ -1,116 +1,73 @@
-(ns closol.matrix)
-
-(define (matrix w h . default)
-  (let* ((v (make-vector h)))
-    (do ((j 0 (+ j 1)))
-      ((= j h))
-      (vector-set! v j (make-vector w (if (null? default) 0 (car default))))
-      )
-    (list->vector `(matrix width ,w height ,h data ,v)) 
-    ))
- 
-(define (matrix-width m)
-  (vector-ref m 2))
- 
-(define (matrix-height m)
-  (vector-ref m 4))
- 
-(define (matrix-data m)
-  (vector-ref m 6))
- 
-(define (matrix-ref m i j)
-  (vector-ref (vector-ref (matrix-data m) j) i))
- 
-(define (matrix-set! m i j v)
-  (vector-set! (vector-ref (matrix-data m) j) i v)
-  m)
- 
-(define (matrix-do m fvij)
-  (do ((j 0 (+ j 1)))
-    ((= j (matrix-height m)))
-    (do ((i 0 (+ i 1)))
-      ((= i (matrix-width m)))
-      (fvij (matrix-ref m i j) i j)))
-  m)
- 
-(define (matrix-map! m fvij)
-  (display '(matrix-map!))(newline)
-  (matrix-do m (lambda (v i j)
-                 (matrix-set! m i j (fvij v i j)))
+(ns closol.matrix
+  (:require
+    [closol.vfunc :refer :all])
+  (:import
+    (java.awt Color Dimension BorderLayout Image)
+    (java.awt.image BufferedImage)
+    (javax.swing JPanel JFrame JOptionPane JButton JLabel)
+    (java.awt.event KeyListener)
+    (java.io File)
+    (javax.imageio ImageIO)
     )
-  m)
- 
-(define (matrix-map m fvij)
-  (let ((m1 (matrix (matrix-width m) (matrix-height m))))
-    (matrix-do m 
-      (lambda (v i j)
-        (matrix-set! m1 i j (fvij v i j))
-        )
-      )
-    m1))
+  (:gen-class))
 
- 
-(define (matrix-fxy! m fxy xmin xmax ymin ymax)
-  (matrix-do m 
-    (lambda (v i j)
-      (let* ((xf (v-lerp-1 i 0 (- (matrix-width m) 1)))
-              (yf (v-lerp-1 j 0 (- (matrix-height m) 1)))
-              (x (v-lerp xf xmin xmax))
-              (y (v-lerp yf ymin ymax)))
-        (matrix-set! m i j (fxy x y))
-        )
-      )
-    )
-  m)
+(defrecord Matrix [data width height])
+(defn matrix [w h fij]
+  (Matrix.
+    (vec (map
+           (fn [j]
+             (vec (map (fn [i] (fij i j)) (range 0 w))))
+           (range 0 h)))
+           w h))
 
-(define (matrix-min-max m)
-  (let* ((min (matrix-ref m 0 0))
-	  (max min)
-	  )
-    (matrix-do m 
-      (lambda (v i j)
-        (if (> min v)
-          (set! min v))
-        (if (< max v)
-          (set! max v))
-        ))
-    (list min max)))
+(defn matrix-fxy [w h xmin xmax ymin ymax fxy]
+  (matrix w h
+    (fn [i j]
+      (let [ xf (v-lerp-1 i 0 (- w 1))
+             yf (v-lerp-1 j 0 (- h 1))
+             x (v-lerp xf xmin xmax)
+             y (v-lerp yf ymin ymax) ]
+        (fxy x y)))))
+
+(defn matrix-data   [m] (.data m))
+(defn matrix-width  [m] (.width m))
+(defn matrix-height [m] (.height m))
+
+(defn matrix-get [m i j]
+  (get (get (.data m) j) i))
+ 
+(defn matrix-map [m fvij]
+  (matrix (.width m) (.height m)
+    (fn [i j] (fvij (matrix-get m i j) i j))))
+ 
+(defn matrix-min-max [m]
+  (let [ min (apply min (map #(apply min %1) (.data m)))
+         max (apply max (map #(apply max %1) (.data m))) ]
+    [min max]))
 
  ;; Maps all elements:
  ;; [min, max] => [vmin, vmax].
-(define (matrix-range! m vmin vmax)
-  (let* ((mmin-max (matrix-min-max m))
-	  (mmin (car mmin-max))
-	  (mmax (cadr mmin-max))
-	  (mscale (- mmax mmin)))
-    (if (<= mscale 0)
-      (set! mscale 1))
-    
-    (matrix-map! m 
-      (lambda (v i j)
-        (v-lerp (/ (- v mmin) mscale) vmin vmax)))
-    ))
+(defn matrix-range [m vmin vmax & opts]
+  (let [ mmin-max (matrix-min-max m)
+         mmin     (first mmin-max)
+         mmax     (second mmin-max)
+         mscale   (if (= mmin mmax) 1.0 (float (- mmax mmin)))
+         fvij     (if (empty? opts) (fn [v i j] v) (first opts)) ]
+    (matrix-map m 
+      (fn [v i j]
+        (fvij (v-lerp (/ (- v mmin) mscale) vmin vmax) i j)))))
 
-(define (matrix-data-vector m)
-  (let ((rv (make-vector (* (matrix-width m) (matrix-height m))))
-	 (vi 0))
-    (matrix-do m (lambda (v i j)
-                   (vector-set! rv vi v)
-                   (set! vi (+ vi 1))))
-    rv))
- 
-(define (matrix-make-graymap! m)
-  (display '(matrix-make-graymap))(newline)
-  (display `("  m => " ,m))(newline)
-  (matrix-map! m (lambda (v i j)
-                   (v-real-part v)))
-  (display `("  v-real-part v => " ,m))(newline)
-  (matrix-range! m 0 255)
-  (display `("  matrix-range! => " ,m))(newline)
-  (matrix-map! m (lambda (v i j)
-                   (set! v (v-real-part v))
-                   (exact (truncate v))))
-  (display `("  map to integer => " ,m))(newline)
-  m
-  )
+(defn matrix-graymap [m]
+  (matrix-range m 0 255.9999 (fn [v i j] (int v))))
+
+(defn matrix-image [m]
+  (let [ image (BufferedImage. (.width m) (.height m) BufferedImage/TYPE_INT_ARGB)
+         g (.getGraphics image) ]
+    (matrix-map m (fn [v i j]
+                    (.setColor g (new Color v v v))
+                    (.fillRect g j i 1 1)))
+    image))
+
+(defn image-to-file [i file]
+  (ImageIO/write i "png" (File. file)))
 
