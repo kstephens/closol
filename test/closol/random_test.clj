@@ -29,4 +29,10 @@
       (dosync
         (is (= (random-merge r '[[a b c d] [1 2 3 4 5] [x y z]])
               '(1 y c d 5)))
+        )))
+  (testing "(random-merge r [ a ])"
+    (let [r (make-random 4)]
+      (dosync
+        (is (= (random-merge r '[[a b c d]])
+              '(a b c d)))
         ))))
