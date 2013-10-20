@@ -1,37 +1,38 @@
 (ns closol.mutate
-  (:require [closol.random :refer :all])
-  (:require [closol.vfunc :refer :all]))
+  (:require
+    [closol.random :refer :all]
+    [closol.vfunc :refer :all]))
 
 (def variables '[x y])
 (def operators '[
       ;; UOPs
-      [v-neg 1]
-      [v-cos 1]
-      [v-sin 1]
+      [closol.vfunc/v-neg 1]
+      [closol.vfunc/v-cos 1]
+      [closol.vfunc/v-sin 1]
       ;;(v-acos 1)
       ;;(v-asin 1)
-      [v-floor 1]
+      [closol.vfunc/v-floor 1]
       ;;(v-real-part 1)
       ;;(v-imag-part 1)
-      [v-magnitude 1]
+      [closol.vfunc/v-magnitude 1]
       ;;(v-angle 1)
                         
       ;; BOPs
-      [v-add 2]
-      [v-sub 2]
-      [v-mul 2]
-      [v-div 2]
-      [v-mod 2]
-      [v-expt 2]
+      [closol.vfunc/v-add 2]
+      [closol.vfunc/v-sub 2]
+      [closol.vfunc/v-mul 2]
+      [closol.vfunc/v-div 2]
+      [closol.vfunc/v-mod 2]
+      [closol.vfunc/v-expt 2]
       ;;(v-make-rectangular 2)
       ;;(v-make-polar 2)
       ;;(atan-safe 2)
                  
       ;; TOPs
-      [v-if 3]
-      [v-clamp 3]
-      [v-lerp 3]
-      [v-lerp-1 3]
+      [closol.vfunc/v-if 3]
+      [closol.vfunc/v-clamp 3]
+      [closol.vfunc/v-lerp 3]
+      [closol.vfunc/v-lerp-1 3]
       ])
 (def operator-name-map
   (reduce #(assoc %1 (first %2) %2) {} operators))
@@ -67,6 +68,10 @@
 ;; Generates a sequence n elements long of the result of proc.
 (defn times [n proc]
   (map (fn [_] (proc)) (range 0 n)))
+
+(defn expr-to-function
+  [m expr]
+  (binding [*ns* *ns*] (eval `(fn ~(mutator-variables m) ~expr))))
 
 (defn random-expression
   "Generates a random expression of max depth."
