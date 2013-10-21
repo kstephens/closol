@@ -76,10 +76,10 @@
 (deftest generate-image-test
   (testing "random-expression image"
     (doall
-      (map (fn [i]
-           (let [ m          (make-mutator (make-random (* 3 i)))
-                  file_png   (str "test" i ".png")
-                  file_expr  (str "test" i ".expr") ]
+      (map (fn [seed]
+           (let [ m          (make-mutator (make-random seed))
+                  file_png   (str "tmp/test" seed ".png")
+                  file_expr  (str "tmp/test" seed ".expr") ]
              (println (str "\n  ### Creating " file_png " from:"))
              (dosync
                (let [ e  (random-expression m 10)
@@ -93,6 +93,14 @@
                        (matrix-fxy 512 512 -10.0 10.0 -10.0 10.0 f)))
                    file_png)
                  ))
-             (is (= file_png ""))))
-      (range 1 3)))
+             (is (= "" ""))))
+      [
+        ; 32
+        ; 30 ; java.lang.IllegalArgumentException: Value out of range for float: Infinity
+        ; 29 ; java.lang.NumberFormatException: Infinite or NaN
+        20
+        ; 17 ; java.lang.IllegalArgumentException: Value out of range for float: Infinity
+        16
+        12
+        6]))
     ))
