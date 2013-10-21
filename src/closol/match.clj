@@ -70,8 +70,7 @@
 (defn pattern-rest:pattern [pattern]
   (let [ inner (first pattern) ]
     (make-like 
-      (conj (rest inner)
-        (rest-patterns (first inner)))
+      (cons (rest-patterns (first inner)) (rest inner))
       inner)))
 
 (defn pattern-variable? [pattern]
@@ -134,13 +133,13 @@
     (if pattern-replace:*debug* (println "  pattern-dictionary:replace " datum replacement d))
     (cond
       has-replacement        (pattern-replace pattern datum replacement d)
-      (proper-list? datum)   (conj
-                               (pattern-dictionary:replace d pattern (rest datum))
-                               (pattern-dictionary:replace d pattern (first datum)))
+      (proper-list? datum)   (cons
+                               (pattern-dictionary:replace d pattern (first datum))
+                               (pattern-dictionary:replace d pattern (rest datum)))
       (proper-vector? datum) (vec
-                               (conj
-                                 (pattern-dictionary:replace d pattern (vec (rest datum)))
-                                 (pattern-dictionary:replace d pattern (first datum))))
+                               (cons
+                                 (pattern-dictionary:replace d pattern (first datum))
+                                 (pattern-dictionary:replace d pattern (vec (rest datum)))))
       ;; (procedure? datum)     (datum pattern datum d)
       :else                  datum)))
 
