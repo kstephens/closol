@@ -32,7 +32,7 @@ Rewrite as a let* form with all complex subexpressions as local bindings to new 
   [expr]
   (let [
          ;; Enumerate all subexpressions.
-         exprs       (reverse (filter #(not (or (symbol? %1) (number? %1))) (enumerate-subexpressions expr)))
+         exprs       (reverse (filter #(not (or (symbol? %1) (number? %1))) (subexpressions expr)))
          ;; Count the number of times a subexpression is referenced.
          occurances  (frequencies exprs)
          ;; Common Subexpressions: all subexpressions that occur more than once.

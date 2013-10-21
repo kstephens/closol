@@ -2,13 +2,13 @@
   (:require
     [clojure.walk :as w]))
 
-(defn enumerate-subexpressions
+(defn subexpressions
   "Enumerates all improper subexpressions, including expr."
   [expr]
   (cond
     (list? expr)
       (if (empty? expr) '()
-        (cons expr (apply concat (map enumerate-subexpressions (rest expr)))))
+        (cons expr (apply concat (map subexpressions (rest expr)))))
     :else (list expr)))
 
 (defn expression-complexity
@@ -42,5 +42,5 @@ Returns expr if one of similar complexity cannot be found."
   [expr root]
   (let [ expr-c     (expression-complexity expr)
          valid-exps (filter #(= (expression-complexity %1) expr-c)
-                     (enumerate-subexpressions root))]
+                     (subexpressions root))]
     (if (empty? valid-exps) expr (rand-nth valid-exps))))

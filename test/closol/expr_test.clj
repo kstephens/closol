@@ -3,15 +3,15 @@
     [clojure.test :refer :all]
     [closol.expr :refer :all]))
 
-(deftest enumerate-subexpressions-test
-  (testing "enumerate-subexpressions"
-    (is (= (enumerate-subexpressions '1)
+(deftest subexpressions-test
+  (testing "subexpressions"
+    (is (= (subexpressions '1)
       '(1)))
-    (is (= (enumerate-subexpressions 'x)
+    (is (= (subexpressions 'x)
       '(x)))
-    (is (= (enumerate-subexpressions '(+ 1 2))
+    (is (= (subexpressions '(+ 1 2))
       '((+ 1 2) 1 2)))
-    (is (= (enumerate-subexpressions '(* 2 (+ 1 2) (- 1 x)))
+    (is (= (subexpressions '(* 2 (+ 1 2) (- 1 x)))
       '((* 2 (+ 1 2) (- 1 x)) 2 (+ 1 2) 1 2 (- 1 x) 1 x)))
     ))
 (deftest expression-complexity-test
