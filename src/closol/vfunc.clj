@@ -29,7 +29,7 @@
     (3) (vector (f (v-get x 0)) (f (v-get x 1)) (f (v-get x 1)))))
 
 (defn v-map2 [f x y]
-  (case (max (v-size x) (max (v-size y)))
+  (case (max (v-size x) (v-size y))
     (1) (f (v-get x 0) (v-get y 0))
     (2) (vector (f (v-get x 0) (v-get y 0)) (f (v-get x 1) (v-get y 1)))
     (3) (vector (f (v-get x 0) (v-get y 0)) (f (v-get x 1) (v-get y 1)) (f (v-get x 2) (v-get y 2)))))
