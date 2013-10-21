@@ -10,12 +10,12 @@
   (and (= (type x) (type y))
     (cond
       ;; (coll? x)    (and (empty? x) (empty? y))
-      (list? x)    (or (and (empty? x) (empty? y))
-                     (and (equal? (first x) (first y)) (equal? (rest x) (rest y))))
       (vector? x)  (or (and (empty? x) (empty? y))
                      (and (equal? (first x) (first y)) (equal? (vec (rest x)) (vec (rest y)))))
       (map? x)     (every? #(and (contains? x %1) (equal? %1 (x %1))) (set (concat (keys x) (keys y))))
       (set? x)     (every? #(contains? x %1) (concat x y))
+      (seq? x)     (or (and (empty? x) (empty? y))
+                     (and (equal? (first x) (first y)) (equal? (rest x) (rest y))))
       :else        (= x y)
       )))
 
@@ -32,26 +32,32 @@
 (declare
   pattern-variable? pattern-variable:match? pattern-variable:replace
   pattern-predicate? pattern-predicate:match? pattern-predicate:replace
-  pattern-rest? pattern-rest:pattern
-  )
+  pattern-rest? pattern-rest:pattern)
 
-(defn proper-list?   [x] (and (list? x) (not (empty? x))))
-(defn proper-vector? [x] (and (vector? x) (not (empty? x))))
+(defn proper-list?
+  [x]
+  (and
+    (or (list? x)
+      (instance? clojure.lang.Cons x)
+      (instance? clojure.lang.LazySeq x))
+    (not (empty? x))))
+
+(defn proper-vector?
+  [x]
+  (and (vector? x) (not (empty? x))))
 
 (defn match [pattern datum dictionary]
-  (if pattern:*debug* (println "  (match" pattern datum dictionary ")"))
+  (if pattern:*debug* (println "  (match" pattern ":" (type pattern) datum ":" (type datum) dictionary ")"))
   (cond
     (not dictionary)               false
     (pattern-rest? pattern)        (match (pattern-rest:pattern pattern) datum dictionary)
     (pattern-variable? pattern)    (pattern-variable:match? pattern datum dictionary)
     (pattern-predicate? pattern)   (pattern-predicate:match? pattern datum dictionary)
-    (and (proper-list? pattern)
-      (proper-list? datum))         
-                                   (match (rest pattern) (rest datum)
-                                      (match (first pattern) (first datum) dictionary))
     (and (proper-vector? pattern)
-      (proper-vector? datum))       
-                                   (match (vec (rest pattern)) (vec (rest datum))
+      (proper-vector? datum))      (match (vec (rest pattern)) (vec (rest datum))
+                                     (match (first pattern) (first datum) dictionary))
+    (and (proper-list? pattern)
+      (proper-list? datum))        (match (rest pattern) (rest datum)
                                      (match (first pattern) (first datum) dictionary))
     :else                          (and (equal? pattern datum) dictionary)))
 
@@ -64,9 +70,8 @@
 (defn pattern-rest:pattern [pattern]
   (let [ inner (first pattern) ]
     (make-like 
-      (cons
-        (rest-patterns (first inner))
-        (rest inner))
+      (conj (rest inner)
+        (rest-patterns (first inner)))
       inner)))
 
 (defn pattern-variable? [pattern]
@@ -129,11 +134,13 @@
     (if pattern-replace:*debug* (println "  pattern-dictionary:replace " datum replacement d))
     (cond
       has-replacement        (pattern-replace pattern datum replacement d)
-      (proper-list? datum)   (cons (pattern-dictionary:replace d pattern (first datum))
-                               (pattern-dictionary:replace d pattern (rest datum)))
+      (proper-list? datum)   (conj
+                               (pattern-dictionary:replace d pattern (rest datum))
+                               (pattern-dictionary:replace d pattern (first datum)))
       (proper-vector? datum) (vec
-                               (cons (pattern-dictionary:replace d pattern (first datum))
-                                 (pattern-dictionary:replace d pattern (vec (rest datum)))))
+                               (conj
+                                 (pattern-dictionary:replace d pattern (vec (rest datum)))
+                                 (pattern-dictionary:replace d pattern (first datum))))
       ;; (procedure? datum)     (datum pattern datum d)
       :else                  datum)))
 
@@ -180,8 +187,7 @@
        datum)))
 
 (defn rule:applyn [rules datum]
-  (if (empty? rules) datum
-    (recur (rest rules) (rule:apply (first rules) datum))))
+  (reduce #(rule:apply %2 %1) datum rules))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -196,8 +202,9 @@
 
 (defn recursive-func [f]
   (fn rf [x]
-    (let [ x-prime (f x) ]
+    (let [ x2 (f x) ]
       (cond
-        (coll? x) (cons (rf (first x)) (rf (rest x)))
-        :else    x))))
+        (vector? x2) (vec (map rf x2))
+        (seq? x2)    (map rf x2)
+        :else        x2))))
  
