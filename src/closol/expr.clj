@@ -1,6 +1,4 @@
-(ns closol.expr
-  (:require
-    [clojure.walk :as w]))
+(ns closol.expr)
 
 (defn subexpressions
   "Enumerates all improper subexpressions, including expr."

@@ -32,5 +32,5 @@
     (is (= (constant-fold 'x) 'x))
     (is (= (constant-fold '2345) '2345))
     (is (= (constant-fold '(+ 1 2)) '3))
-    (is (= (constant-fold '(+ 1 x (* 2 3)))) '(+ 1 x 6))
+    (is (= (constant-fold '(+ 1 x (* (+ 1 2) 2 1)))) '(+ 1 x 6))
     ))
