@@ -35,6 +35,7 @@
               '(closol.vfunc/v-sin (closol.vfunc/v-add (closol.vfunc/v-lerp-1 (closol.vfunc/v-sub -0.3776215509956984 y) (closol.vfunc/v-mul 0.17040577157121106 y) (closol.vfunc/v-sub -5.450294863818382 -3.463021240569434)) (closol.vfunc/v-mul (closol.vfunc/v-cos -7.346355462375779) (closol.vfunc/v-cos 5.1152809405462065))))))
         ))))
 
+#_
 (deftest random-expression-test
   (testing "random-expression"
     (let [m (make-mutator (make-random 2))]
