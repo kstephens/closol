@@ -1,10 +1,24 @@
 (ns closol.mutate-test
   (:require
+    [clojure.pprint :refer :all]
     [clojure.test :refer :all]
+    [closol.expr :refer :all]
     [closol.mutate :refer :all]
     [closol.random :refer :all]
-    [closol.matrix :refer :all]))
+    [closol.matrix :refer :all]
+    [clojure.java.io :refer :all])
+  )
 
+(defmacro with-out-file
+  "Evaluates exprs in a context in which *out* is bound to a fresh
+  StringWriter.  Returns the string created by any nested printing
+  calls."
+  [file & body]
+  `(with-open [wrtr# (writer ~file)]
+     (binding [*out* wrtr#]
+       ~@body)))
+
+#_
 (deftest random-expression-of-depth-test
   (testing "random-expression-of-depth"
     (let [m (make-mutator (make-random 1))]
@@ -59,11 +73,25 @@
       )))
 
 (deftest generate-image-test
-  (testing "random-expression-of-depth image"
-    (let [m (make-mutator (make-random 3))]
-      (dosync
-        (let [ e (random-expression-of-depth m 6)
-               f (expr-to-function m e)
-               i (matrix-fxy 512 512 -10.0 10.0 -10.0 10.0 f) ]
-          (image-to-file (matrix-image (matrix-graymap i)) "test.png")
-        )))))
+  (testing "random-expression image"
+    (doall
+      (map (fn [i]
+           (let [ m          (make-mutator (make-random (* 3 i)))
+                  file_png   (str "test" i ".png")
+                  file_expr  (str "test" i ".expr") ]
+             (println (str "\n  ### Creating " file_png " from:"))
+             (dosync
+               (let [ e  (random-expression m 10)
+                      e2 (constant-fold e)
+                      f  (expr-to-function m e2) ]
+                 (with-out-file file_expr (pprint e2))
+                 (println (slurp file_expr))
+                 (image-to-file
+                   (matrix-image
+                     (matrix-graymap
+                       (matrix-fxy 512 512 -10.0 10.0 -10.0 10.0 f)))
+                   file_png)
+                 ))
+             (is (= file_png ""))))
+      (range 1 3)))
+    ))
