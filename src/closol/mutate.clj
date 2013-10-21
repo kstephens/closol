@@ -24,6 +24,9 @@
       [closol.vfunc/v-div 2]
       [closol.vfunc/v-mod 2]
       [closol.vfunc/v-expt 2]
+      [closol.vfunc/v-bit-xor 2]
+      [closol.vfunc/v-bit-and 2]
+      [closol.vfunc/v-bit-or  2]
       ;;(v-make-rectangular 2)
       ;;(v-make-polar 2)
       ;;(atan-safe 2)
@@ -115,7 +118,7 @@
 (declare mutate-expr-2)
 (defn mutate-expr-1 [cntx expr root]
   ;;(display "  ")(write `(mutate-expr-1 cntx ,expr root))(newline)
-  (let [result (mutate-expr-2 cntx expr expr)]
+  (let [result (mutate-expr-2 cntx expr root)]
     ;(display "  ")(write `(mutate-expr-1 cntx ,expr root))(newline)(display "  => ")(write result)(newline)
     result))
 ;;(define mutate-expr-1 mutate-expr-2)

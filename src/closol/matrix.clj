@@ -64,7 +64,7 @@
   (let [ image (BufferedImage. (.width m) (.height m) BufferedImage/TYPE_INT_ARGB)
          g (.getGraphics image) ]
     (matrix-map m (fn [v i j]
-                    (.setColor g (new Color v v v))
+                    (.setColor g (new Color (v-i0 v) (v-i1 v) (v-i2 v)))
                     (.fillRect g j i 1 1)))
     image))
 

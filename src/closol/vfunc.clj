@@ -11,25 +11,56 @@
 (defn positive? [x] (> x 0))
 
 (defn isNaN? [x] (Double/isNaN x))
-(defn v-real-part [xx]
-  (let [x (real-part xx)]
-    (if (isNaN? x)
-      0
-      x)))
 
-(defn v-neg [x] (- x))
-(defn v-add [x y] (+ x y))
-(defn v-sub [x y] (- x y))
-(defn v-mul [x y] (* x y))
-(defn v-div [x y]
-  (if (zero? y)
-    x
-    (/ x y)))
-  
-(defn v-expt [x y]
-  (if (zero? x)
-    0
-    (nt/expt x y)))
+(defn v-get [x i]
+  (cond
+    (vector? x) (get x i)
+    :else       x))
+
+(defn v-size [x]
+  (cond
+    (vector? x) (count x)
+    :else       1))
+
+(defn v-map1 [f x]
+  (case (v-size x)
+    (1) (f (v-get x 0))
+    (2) (vector (f (v-get x 0)) (f (v-get x 1)))
+    (3) (vector (f (v-get x 0)) (f (v-get x 1)) (f (v-get x 1)))))
+
+(defn v-map2 [f x y]
+  (case (max (v-size x) (max (v-size y)))
+    (1) (f (v-get x 0) (v-get y 0))
+    (2) (vector (f (v-get x 0) (v-get y 0)) (f (v-get x 1) (v-get y 1)))
+    (3) (vector (f (v-get x 0) (v-get y 0)) (f (v-get x 1) (v-get y 1)) (f (v-get x 2) (v-get y 2)))))
+
+(defn v-v1 [x]     (v-get x 0))
+(defn v-v2 [x y]   [ (v-get x 0) (v-get y 0) ])
+(defn v-v3 [x y z] [ (v-get x 0) (v-get y 0) (v-get z 0) ])
+(defn v-i0 [x]     (v-get x 0))
+(defn v-i1 [x]     (v-get x 1))
+(defn v-i2 [x]     (v-get x 2))
+(defn v-int [x]    (int (mod (Math/abs x) 256)))
+
+(defn v-real-part [xx]
+  (cond
+    (vector? xx) (reduce + 0 xx)
+    :else
+    (let [x (real-part xx)]
+      (if (isNaN? x)
+        0
+        x))))
+
+(defn v-neg [x]    (v-map1 - x))
+(defn v-add [x y]  (v-map2 + x y))
+(defn v-sub [x y]  (v-map2 - x y))
+(defn v-mul [x y]  (v-map2 * x y))
+(defn v-div [x y]  (v-map2 #(if (zero? %2) %1 (/ %1 %2)) x y))
+(defn v-expt [x y] (v-map2 #(if (zero? %1) 0 (nt/expt %1 %2)) x y))
+
+(defn v-bit-xor [x y]  (v-map2 #(bit-xor (v-int %1) (v-int %2)) x y))
+(defn v-bit-and [x y]  (v-map2 #(bit-and (v-int %1) (v-int %2)) x y))
+(defn v-bit-or  [x y]  (v-map2 #(bit-or  (v-int %1) (v-int %2)) x y))
 
 (defn v-mod-1 [x y]
   (let [d (v-div x y)]
