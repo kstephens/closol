@@ -40,7 +40,8 @@
 (defn v-i0 [x]     (v-get x 0))
 (defn v-i1 [x]     (v-get x 1))
 (defn v-i2 [x]     (v-get x 2))
-(defn v-int [x]    (int (mod (Math/abs x) 256)))
+(declare v-real-part)
+(defn v-int [x]    (int (mod (Math/abs (v-real-part x)) 256)))
 
 (defn v-real-part [xx]
   (cond
