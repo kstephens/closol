@@ -45,7 +45,11 @@
          max (apply max (map #(apply max %1) (.data m))) ]
     [min max]))
 
- ;; Maps all elements:
+(defn matrix-fix-float [m]
+  (matrix-map m
+    (fn [v i j] (v-real-part v))))
+
+ ;; Maps elements:
  ;; [min, max] => [vmin, vmax].
 (defn matrix-range [m vmin vmax & opts]
   (let [ mmin-max (matrix-min-max m)
@@ -61,7 +65,7 @@
   (every? #(every? zero? %1) (.data m)))
 
 (defn matrix-graymap [m]
-  (matrix-range m 0 255.9999 (fn [v i j] (int v))))
+  (matrix-range m 0 255.9999 (fn [v i j] (int (v-real-part v)))))
 
 (defn matrix-image [m]
   (let [ image (BufferedImage. (.width m) (.height m) BufferedImage/TYPE_INT_ARGB)

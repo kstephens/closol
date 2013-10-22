@@ -12,7 +12,7 @@
 
 (defn isNaN?      [x] (Double/isNaN x))
 (defn isInfinite? [x] (Double/isInfinite x))
-(defn float-nan?  [x] (or (Double/isNaN x) (Double/isInfinite x)))
+(defn float-nan?  [x] (and (float? x) (or (Double/isNaN x) (Double/isInfinite x))))
 
 (defn v-size [x]
   (if (vector? x) (count x) 1))
@@ -43,7 +43,7 @@
 (defn v-real-part [xx]
   (if (vector? xx) (v-real-part (reduce + 0.0 xx))
     (let [x (real-part xx)]
-      (if (float-nan? x) 0.0 x))))
+      (if (float-nan? x) 0.0 (float x)))))
 
 (defn v-neg [x]    (v-map1 - x))
 (defn v-add [x y]  (v-map2 + x y))
