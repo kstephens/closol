@@ -81,25 +81,29 @@ Returns the last value from the body."
          file_expr  (str "tmp/test" seed ".expr") ]
     (if (.exists (File. file_expr))
       (do
-        (println "  ### File " file_expr " already exists.")
+        (println "  ### File" file_expr "already exists.")
         false)
       (do
-        (println (str "\n  ### Creating " file_png " from:"))
+        (println (str "  ### Creating" file_png " from:"))
         (dosync
           (let [ e  (random-expression m 10)
                  e2 (finish-expression e)
                  f  (expr-to-function m e2) ]
             (with-out-file file_expr (pprint e2))
             (println (slurp file_expr))
-            (let [ fxy (matrix-graymap (matrix-fxy 512 512 -10.0 10.0 -10.0 10.0 f)) ]
-              (if (matrix-zero? fxy)
-                (do
-                  (println "  ### Image is all zeros!")
-                  false)
-                (do
-                  (image-to-file (matrix-image fxy) file_png)
-                  file_png)
-                ))))))))
+            (if (symbol? e2)
+              (do
+                (println "  ### Image for seed" seed "is linear!")
+                false)
+              (let [ fxy (matrix-graymap (matrix-fix-float (matrix-fxy 512 512 -10.0 10.0 -10.0 10.0 f))) ]
+                (if (matrix-zero? fxy)
+                  (do
+                    (println "  ### Image of seed" seed "is all zeros!")
+                    false)
+                  (do
+                    (image-to-file (matrix-image fxy) file_png)
+                    file_png)
+                  )))))))))
 
 (deftest generate-image-test
   (testing "random-expression image"
