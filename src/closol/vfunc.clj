@@ -71,7 +71,7 @@
 (defn v-cos [x] (Math/cos (v-real-part x)))
 (defn v-asin [x] (Math/asin (mod (v-real-part x) 1)))
 (defn v-acos [x] (Math/acos (mod (v-real-part x) 1)))
-(defn v-atan [xx yy]
+(defn v-atan2 [xx yy]
   (let [x (v-real-part xx)
         y (v-real-part yy)]
     (if (and (zero? x) (zero? y)) 0.0
@@ -90,7 +90,9 @@
 (defn v-if [a b c]
   (if (positive? (v-real-part a)) b c))
   
-(defn v-clamp [xx aa bb]
+(defn v-clamp
+  "Clamp x in [a, b] interval."
+  [xx aa bb]
   (let [
          x (v-real-part xx)
          a (v-real-part aa)
@@ -108,15 +110,15 @@
           a
           x)))))
   
-;; Linear Interpolation:
-;; x in [0, 1] => [x0, x1].
-(defn v-lerp [xx x0 x1]
-  (let [ x (float xx) ]
+(defn v-lerp
+  "Linear Interpolation: x in [0, 1] => [x0, x1]."
+  [xx x0 x1]
+  (let [ x (v-real-part xx) ]
     (+ (* x0 (- 1.0 x)) (* x1 x))))
   
-;; Inverse of lerp:
-;; x in [x0, x1] => [0, 1].
-(defn v-lerp-1 [x x0 x1]
+(defn v-lerp-1
+  "Inverse of lerp: x in [x0, x1] => [0, 1]."
+  [x x0 x1]
   (let [ d (v-real-part (- x1 x0)) ]
     (if (zero? d) 0.0
       (v-real-part (/ (- x x0) d)))))
