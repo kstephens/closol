@@ -4,7 +4,7 @@ Generate and mutate expression trees and render them as images in Clojure.
 
 ## Usage
 
-    lein test && open test.png
+    lein test; open tmp/test*.png
 
 ## License
 
