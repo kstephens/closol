@@ -18,6 +18,13 @@
     (symbol? expr)  1
     :else           0))
 
+(defn expression-depth
+  "The max depth of the expression tree."
+  [expr]
+  (cond
+    (seq? expr)     (+ 1 (apply max (map expression-depth expr)))
+    :else           1))
+
 (defn constant-expr?
   "Is expression constant?"
   [expr]
