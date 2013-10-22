@@ -57,6 +57,9 @@
       (fn [v i j]
         (fvij (v-lerp (/ (- v mmin) mscale) vmin vmax) i j)))))
 
+(defn matrix-zero? [m]
+  (every? #(every? zero? %1) (.data m)))
+
 (defn matrix-graymap [m]
   (matrix-range m 0 255.9999 (fn [v i j] (int v))))
 
@@ -68,6 +71,6 @@
                     (.fillRect g j i 1 1)))
     image))
 
-(defn image-to-file [i file]
-  (ImageIO/write i "png" (File. file)))
+(defn image-to-file [img file]
+  (ImageIO/write img "png" (File. file)))
 

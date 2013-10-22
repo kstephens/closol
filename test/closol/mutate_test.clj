@@ -7,12 +7,13 @@
     [closol.random :refer :all]
     [closol.matrix :refer :all]
     [clojure.java.io :refer :all])
+  (:import
+    (java.io File))
   )
 
 (defmacro with-out-file
-  "Evaluates exprs in a context in which *out* is bound to a fresh
-  StringWriter.  Returns the string created by any nested printing
-  calls."
+  "Evaluates exprs in a context in which *out* is bound to a file.
+Returns the last value from the body."
   [file & body]
   `(with-open [wrtr# (writer ~file)]
      (binding [*out* wrtr#]
@@ -73,34 +74,34 @@
         )
       )))
 
+(defn make-image-from-seed
+  [seed]
+  (let [ m          (make-mutator (make-random seed))
+         file_png   (str "tmp/test" seed ".png")
+         file_expr  (str "tmp/test" seed ".expr") ]
+    (if (.exists (File. file_expr))
+      (do
+        (println "  ### File " file_expr " already exists.")
+        false)
+      (do
+        (println (str "\n  ### Creating " file_png " from:"))
+        (dosync
+          (let [ e  (random-expression m 10)
+                 e2 (constant-fold e)
+                 f  (expr-to-function m e2) ]
+            (with-out-file file_expr (pprint e2))
+            (println (slurp file_expr))
+            (let [ fxy (matrix-graymap (matrix-fxy 512 512 -10.0 10.0 -10.0 10.0 f)) ]
+              (if (matrix-zero? fxy)
+                (do
+                  (println "  ### Image is all zeros!")
+                  false)
+                (do
+                  (image-to-file (matrix-image fxy) file_png)
+                  file_png)
+                ))))))))
+
 (deftest generate-image-test
   (testing "random-expression image"
-    (doall
-      (map (fn [seed]
-           (let [ m          (make-mutator (make-random seed))
-                  file_png   (str "tmp/test" seed ".png")
-                  file_expr  (str "tmp/test" seed ".expr") ]
-             (println (str "\n  ### Creating " file_png " from:"))
-             (dosync
-               (let [ e  (random-expression m 10)
-                      e2 (constant-fold e)
-                      f  (expr-to-function m e2) ]
-                 (with-out-file file_expr (pprint e2))
-                 (println (slurp file_expr))
-                 (image-to-file
-                   (matrix-image
-                     (matrix-graymap
-                       (matrix-fxy 512 512 -10.0 10.0 -10.0 10.0 f)))
-                   file_png)
-                 ))
-             (is (= "" ""))))
-      [
-        ; 32
-        ; 30 ; java.lang.IllegalArgumentException: Value out of range for float: Infinity
-        ; 29 ; java.lang.NumberFormatException: Infinite or NaN
-        20
-        ; 17 ; java.lang.IllegalArgumentException: Value out of range for float: Infinity
-        16
-        12
-        6]))
+    (doall (take 10 (filter make-image-from-seed (range))))
     ))
