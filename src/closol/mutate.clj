@@ -1,7 +1,8 @@
 (ns closol.mutate
   (:require
+    [closol.expr   :refer :all]
     [closol.random :refer :all]
-    [closol.vfunc :refer :all]))
+    [closol.vfunc  :refer :all]))
 
 (def variables '[x y])
 (def operators '[
@@ -9,6 +10,8 @@
       [closol.vfunc/v-neg 1]
       [closol.vfunc/v-cos 1]
       [closol.vfunc/v-sin 1]
+      [closol.vfunc/v-acos 1]
+      [closol.vfunc/v-asin 1]
       ;;(v-acos 1)
       ;;(v-asin 1)
       [closol.vfunc/v-floor 1]
@@ -24,12 +27,14 @@
       [closol.vfunc/v-div 2]
       [closol.vfunc/v-mod 2]
       [closol.vfunc/v-expt 2]
+      ;; [closol.vfunc/v-atan 2]
       [closol.vfunc/v-bit-xor 2]
       [closol.vfunc/v-bit-and 2]
       [closol.vfunc/v-bit-or  2]
+      [closol.vfunc/v-bit-shift-left  2]
+      [closol.vfunc/v-bit-shift-right 2]
       ;;(v-make-rectangular 2)
       ;;(v-make-polar 2)
-      ;;(atan-safe 2)
                  
       ;; TOPs
       [closol.vfunc/v-if 3]
@@ -99,6 +104,15 @@
     (case ((mutator-random cntx) 2)
       (0) (random-variable cntx)
       (1) (random-number cntx))))
+
+(defn random-subexpression-of-complexity
+  "Selects a random subexpression from root expression of the same complexity as expr.
+Returns expr if one of similar complexity cannot be found."
+  [r expr root]
+  (let [ expr-c     (expression-complexity expr)
+         valid-exps (filter #(= (expression-complexity %1) expr-c)
+                      (subexpressions root))]
+    (if (empty? valid-exps) expr (random-element r valid-exps))))
 
 ;; Generates a random expression with expr as a subexpression.
 (defn random-subexpression-with [cntx expr]
