@@ -44,20 +44,20 @@
       [closol.vfunc/v-lerp 3]
       [closol.vfunc/v-lerp-1 3]
       ])
-(def operator-name-map
-  (reduce #(assoc %1 (first %2) %2) {} operators))
-(def operator-arity-map
-  (reduce #(assoc %1 (second %2) (cons %2 (get %1 (second %2) []))) {} operators))
 
-(defrecord Mutator [random variables operators])
+(defrecord Mutator [random variables operators
+                     operator-name-map operator-arity-map])
 
 (defn make-mutator [random]
-  (Mutator. random variables operators))
+  (Mutator. random variables operators
+    (reduce #(assoc %1 (first %2) %2) {} operators)
+    (reduce #(assoc %1 (second %2) (cons %2 (get %1 (second %2) []))) {} operators)
+    ))
 
 (defn mutator-operator-def [cntx op]
-  (get operator-name-map op))
+  (get (.operator-name-map cntx) op))
 (defn mutator-operators-same-arity [cntx op]
-  (get operator-arity-map (mutator-operator-def op)))
+  (get (.operator-arity-map cntx) (mutator-operator-def op)))
 
 (defn random-variable [cntx]
   (random-element (.random cntx) (.variables cntx)))
