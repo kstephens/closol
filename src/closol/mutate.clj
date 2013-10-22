@@ -1,5 +1,7 @@
 (ns closol.mutate
   (:require
+    [clojure.walk  :refer :all]
+    [closol.match  :refer :all]
     [closol.expr   :refer :all]
     [closol.random :refer :all]
     [closol.vfunc  :refer :all]))
@@ -218,3 +220,15 @@ Returns expr if one of similar complexity cannot be found."
     :else
      (random-element (mutator-random cntx) [expr1 expr2])))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn const-fold-if
+  [expr]
+  (if (and (seq? expr) (= `v-if (first expr)) (number? (second expr)))
+    (apply v-if (rest expr))
+    expr))
+
+(def finish-expression
+  (while-change-func
+    (fn [expr]
+      (walk const-fold-if const-fold-if (constant-fold expr)))))

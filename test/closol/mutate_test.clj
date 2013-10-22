@@ -87,7 +87,7 @@ Returns the last value from the body."
         (println (str "\n  ### Creating " file_png " from:"))
         (dosync
           (let [ e  (random-expression m 10)
-                 e2 (constant-fold e)
+                 e2 (finish-expression e)
                  f  (expr-to-function m e2) ]
             (with-out-file file_expr (pprint e2))
             (println (slurp file_expr))
