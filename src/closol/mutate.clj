@@ -54,26 +54,17 @@
 (defn make-mutator [random]
   (Mutator. random variables operators))
 
-(defn mutator-random    [cntx] (.random cntx))
-(defn mutator-variables [cntx] (.variables cntx))
-(defn mutator-operators [cntx] (.operators cntx))
-
 (defn mutator-operator-def [cntx op]
   (get operator-name-map op))
-
 (defn mutator-operators-same-arity [cntx op]
   (get operator-arity-map (mutator-operator-def op)))
 
 (defn random-variable [cntx]
-  (random-element (mutator-random cntx)
-		  (mutator-variables cntx)))
-
+  (random-element (.random cntx) (.variables cntx)))
 (defn random-number [cntx]
-  (- (* 20.0 ((mutator-random cntx))) 10.0))
-
+  (- (* 20.0 ((.random cntx))) 10.0))
 (defn random-operator [cntx]
-  (random-element (mutator-random cntx) 
-		  (mutator-operators cntx)))
+  (random-element (.random cntx) (.operators cntx)))
 
 ;; Generates a sequence n elements long of the result of proc.
 (defn times [n proc]
@@ -81,12 +72,12 @@
 
 (defn expr-to-function
   [m expr]
-  (binding [*ns* *ns*] (eval `(fn ~(mutator-variables m) ~expr))))
+  (binding [*ns* *ns*] (eval `(fn ~(.variables m) ~expr))))
 
 (defn random-expression
   "Generates a random expression of max depth."
   [cntx depth]
-  (case ((mutator-random cntx) (+ depth 2))
+  (case ((.random cntx) (+ depth 2))
     (0) (random-variable cntx)
     (1) (random-number cntx)
     (let [ro (random-operator cntx) depth (- depth 1)]
@@ -103,7 +94,7 @@
       (cons (first ro)
         (times (second ro)
           #(random-expression-of-depth cntx depth))))
-    (case ((mutator-random cntx) 2)
+    (case ((.random cntx) 2)
       (0) (random-variable cntx)
       (1) (random-number cntx))))
 
@@ -121,15 +112,12 @@ Returns expr if one of similar complexity cannot be found."
   (let [ro (random-operator cntx)]
     (cons
       (first ro)
-      (random-sequence (mutator-random cntx)
-		   (cons expr
-			 (times (- (second ro) 1) #(random-expression cntx 1))))
-      )
-    ))
+      (random-sequence (.random cntx)
+        (cons expr (times (- (second ro) 1) #(random-expression cntx 1)))))))
 
 (defn random-subexpression [cntx expr]
   (let [subexpressions expr]
-    (random-element (mutator-random cntx) subexpressions)))
+    (random-element (.random cntx) subexpressions)))
 
 (declare mutate-expr-2)
 (defn mutate-expr-1 [cntx expr root]
@@ -142,15 +130,15 @@ Returns expr if one of similar complexity cannot be found."
 (defn mutate-expr-2 [cntx expr root]
   (cond 
     (list? expr) 
-    (case ((mutator-random cntx) 10)
+    (case ((.random cntx) 10)
       ;; generate a new random expression with expression
       (0) (random-subexpression-with cntx expr)
       ;; Select a random subexpression from the root.
-      (1) (random-subexpression (mutator-random cntx) expr root)
+      (1) (random-subexpression (.random cntx) expr root)
       ;; Randomize order of arguments.
       (2)
       (cons (first expr)
-        (random-sequence (mutator-random cntx) (rest expr)))
+        (random-sequence (.random cntx) (rest expr)))
       ;; generate a new expression using the same operator
       (3)
       (cons (first expr)
@@ -158,34 +146,33 @@ Returns expr if one of similar complexity cannot be found."
                    (rest expr)))
       ;; generator a new expression using a different operator with same arguments.
       (4)
-      (cons (first (random-element 
-		    (mutator-random cntx)
-		    (mutator-operators-same-arity cntx (first expr))))
+      (cons (first (random-element (.random cntx)
+                     (mutator-operators-same-arity cntx (first expr))))
               (map #(mutate-expr-1 cntx %1 root) (rest expr)))
       ;; select the expression.
-      :else expr)
+      expr)
     
     (symbol? expr)
-    (case ((mutator-random cntx) 8)
+    (case ((.random cntx) 8)
       ;; replace with a new random expression.
       (0) (random-expression cntx 1)
       ;; generate a new random expression with expression
       (1) (random-subexpression-with cntx expr)
       ;; Select a random subexpression from the root.
-      (2) (random-subexpression (mutator-random cntx) expr root)
+      (2) (random-subexpression (.random cntx) expr root)
       ;; Select a random variable.
       (3) (random-variable cntx)
-      :else expr)
+      expr)
     
     :else 
-    (case ((mutator-random cntx) 6)
+    (case ((.random cntx) 6)
       ;; replace with a new random expression.
       (0) (random-expression cntx 1)
       ;; generate a new random expression with expression
       (1) (random-subexpression-with cntx expr)
       ;; Select a random subexpression from the root.
-      (2) (random-subexpression (mutator-random cntx) expr root)
-      :else expr)
+      (2) (random-subexpression (.random cntx) expr root)
+      expr)
     ))
 
 (defn mutate-expr [cntx expr]
@@ -200,25 +187,26 @@ Returns expr if one of similar complexity cannot be found."
 (defn breed-exprs-1 [cntx expr1 root1 expr2 root2]
   (cond
     (and (list? expr1) (list? expr2) (= (count expr1) (count expr2)))
-    (case ((mutator-random cntx) 6)
+    (case ((.random cntx) 6)
       ;; Select an operator from either side and arguments from either side
       (0) 
       (cons
-        (random-element (mutator-random cntx) [(first expr1) (rest expr2)])
-        (random-element (mutator-random cntx) [(first expr1) (rest expr2)]))
+        (random-element (.random cntx) [(first expr1) (rest expr2)])
+        (random-element (.random cntx) [(first expr1) (rest expr2)]))
       ;; Select an expression from either side and breed the arguments.
       (1)
       (cons
-        (random-element (mutator-random cntx) [(first expr1) (first expr2)])
-        (random-merge   (mutator-random cntx) (rest expr1) (rest expr2)))
+        (random-element (.random cntx) [(first expr1) (first expr2)])
+        (random-merge   (.random cntx) (rest expr1) (rest expr2)))
       ;; Select an expression from either side of the same complexity.
       (2)
-      (let [expr-root (random-element (mutator-random cntx)
+      (let [expr-root (random-element (.random cntx)
                         [ (cons (expr1 root2) (cons expr2 root1))])]
-        (random-subexpression (mutator-random cntx) (first expr-root) (first expr-root)))
-      :else (random-element (mutator-random cntx) [expr1 expr2]))
+        (random-subexpression (.random cntx) (first expr-root) (first expr-root)))
+
+      (random-element (.random cntx) [expr1 expr2]))
     :else
-     (random-element (mutator-random cntx) [expr1 expr2])))
+    (random-element (.random cntx) [expr1 expr2])))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
