@@ -95,12 +95,9 @@
      ))
 
 (defmulti v-real-part type)
-(defmethod v-real-part V1 [v]
-  (if (float-nan? v) 0.0 (float v)))
-(defmethod v-real-part V2 [v]
-  (+ (.x v) (.y v)))
-(defmethod v-real-part V3 [v]
-  (+ (.x v) (.y v) (.z v)))
+(defmethod v-real-part V1 [v] v)
+(defmethod v-real-part V2 [v] (+ (.x v) (.y v)))
+(defmethod v-real-part V3 [v] (+ (.x v) (.y v) (.z v)))
 
 (defn1 v-neg   [x] (- x))
 (defn1 v-floor [x] (nt/floor x))
