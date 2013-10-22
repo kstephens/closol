@@ -14,13 +14,8 @@
       [closol.vfunc/v-sin 1]
       [closol.vfunc/v-acos 1]
       [closol.vfunc/v-asin 1]
-      ;;(v-acos 1)
-      ;;(v-asin 1)
       [closol.vfunc/v-floor 1]
-      ;;(v-real-part 1)
-      ;;(v-imag-part 1)
       [closol.vfunc/v-magnitude 1]
-      ;;(v-angle 1)
                         
       ;; BOPs
       [closol.vfunc/v-add 2]
@@ -29,14 +24,13 @@
       [closol.vfunc/v-div 2]
       [closol.vfunc/v-mod 2]
       [closol.vfunc/v-expt 2]
-      ;; [closol.vfunc/v-atan 2]
+      [closol.vfunc/v-atan2 2]
       [closol.vfunc/v-bit-xor 2]
       [closol.vfunc/v-bit-and 2]
       [closol.vfunc/v-bit-or  2]
       [closol.vfunc/v-bit-shift-left  2]
       [closol.vfunc/v-bit-shift-right 2]
-      ;;(v-make-rectangular 2)
-      ;;(v-make-polar 2)
+      [closol.vfunc/v-dist2 2]
                  
       ;; TOPs
       [closol.vfunc/v-if 3]

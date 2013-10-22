@@ -76,6 +76,10 @@
         y (v-real-part yy)]
     (if (and (zero? x) (zero? y)) 0.0
       (Math/atan2 x y))))
+(defn v-dist2 [xx yy]
+  (let [x (v-real-part xx)
+        y (v-real-part yy)]
+    (nt/sqrt (+ (* x x) (* y y)))))
 
 (defn v-make-rectangular [a b]
   (make-rectangular (v-real-part a) (v-real-part b)))

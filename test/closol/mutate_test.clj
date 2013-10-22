@@ -81,17 +81,17 @@ Returns the last value from the body."
          file_expr  (str "tmp/test" seed ".expr") ]
     (if (.exists (File. file_expr))
       (do
-        (println "  ### File" file_expr "already exists.")
+        (println "  ### File " file_expr " already exists.")
         false)
       (do
-        (println (str "  ### Creating" file_png " from:"))
+        (println (str "  ### Creating " file_png " from:"))
         (dosync
           (let [ e  (random-expression m 10)
                  e2 (finish-expression e)
                  f  (expr-to-function m e2) ]
             (with-out-file file_expr (pprint e2))
             (println (slurp file_expr))
-            (if (symbol? e2)
+            (if (not (seq? e2))
               (do
                 (println "  ### Image for seed" seed "is linear!")
                 false)
