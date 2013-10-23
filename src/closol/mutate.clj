@@ -4,10 +4,10 @@
     [closol.match  :refer :all]
     [closol.expr   :refer :all]
     [closol.random :refer :all]
-    [closol.vf2    :refer :all]))
+    [closol.v      :refer :all]))
 
 (def variables '[x y])
-(def operators closol.vf2/functions)
+(def operators closol.v/functions)
 (defrecord Mutator [random variables operators
                      operator-name-map operator-arity-map])
 

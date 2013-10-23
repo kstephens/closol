@@ -1,4 +1,4 @@
-(ns closol.vf2
+(ns closol.v
   (:require
     [clojure.math.numeric-tower :as nt]))
 

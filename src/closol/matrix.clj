@@ -1,6 +1,6 @@
 (ns closol.matrix
   (:require
-    [closol.vf2 :refer :all])
+    [closol.v :refer :all])
   (:import
     (java.awt Color Dimension BorderLayout Image)
     (java.awt.image BufferedImage)
