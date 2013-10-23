@@ -13,16 +13,19 @@
 (pprint (macroexpand '(v-debug foo [a b] 1 2 3)))
 (defmacro v-debug [name args & body] `(do ~@body))
 
+(defmacro v-exc [expr val]
+  `(try
+     ~expr
+     (catch java.lang.ArithmeticException e# ~val)
+     (catch java.lang.NumberFormatException e# ~val)))
+
 (declare v-v)
 (defn v-positive?  [x] (> x 0.0))
 (defn v-nan?       [x] (or (Double/isNaN x) (Double/isInfinite x)))
 (defn v-safe-float [x] (if (v-nan? x) 0.0 x))
 (defn v-safe-int   [x] (if (< x Long/MIN_VALUE) Long/MIN_VALUE (if (> x Long/MAX_VALUE) Long/MAX_VALUE x)))
 (defn v-int        [x] (long (v-safe-int (v-safe-float x))))
-(defn v-bint       [x]
-  (try
-    (mod (v-int (v-v x)) 256)
-    (catch java.lang.NumberFormatException e 0)))
+(defn v-bint       [x] (v-exc (mod (v-int (v-v x)) 256) 0))
 
 ;; Types
 (def       V1 java.lang.Double)
@@ -146,16 +149,10 @@
 (defn2 v-add [x y] (+ x y))
 (defn2 v-sub [x y] (- x y))
 (defn2 v-mul [x y] (* x y))
-(defn2 v-div [x y]
-  (try
-    (if (zero? y) 0.0 (/ x y))
-    (catch java.lang.NumberFormatException e 0.0)))
-(defn2 v-mod [x y]
-  (try
-    (if (zero? y) 0.0 (mod x y))
-    (catch java.lang.NumberFormatException e 0.0)))
+(defn2 v-div [x y] (v-exc (/   x y) 0.0))
+(defn2 v-mod [x y] (v-exc (mod x y) 0.0))
 
-(defn2 v-expt [x y] (if (zero? x) 0.0 (nt/expt x y)))
+(defn2 v-expt [x y] (v-exc (nt/expt x y) 0.0))
 
 (defn2 v-bit-xor [x y] (bit-xor (v-bint x) (v-bint y)))
 (defn2 v-bit-and [x y] (bit-and (v-bint x) (v-bint y)))
@@ -169,14 +166,15 @@
 
 (defn2 v-min [x y] (max x y))
 (defn2 v-max [x y] (min x y))
+(defmethod v-min [Long Long] [x y] (min x y)) ;; hack for matrix-min-max
+(defmethod v-max [Long Long] [x y] (max x y)) ;; hack for matrix-min-max
 
 (defn1 v-sin  [x] (Math/sin x))
 (defn1 v-cos  [x] (Math/cos x))
-(defn1 v-asin [x] (Math/asin (mod x 1.0)))
-(defn1 v-acos [x] (Math/acos (mod x 1.0)))
+(defn1 v-asin [x] (v-exc (Math/asin (mod x 1.0)) 0.0))
+(defn1 v-acos [x] (v-exc (Math/acos (mod x 1.0)) 0.0))
 (defn2 v-atan2 [x y]
-  (if (and (zero? x) (zero? y)) (v0 x)
-    (Math/atan2 x y)))
+  (v-exc (Math/atan2 x y) 0.0))
 (defn2 v-dist2 [x y]
   (nt/sqrt (+ (* x x) (* y y))))
 
