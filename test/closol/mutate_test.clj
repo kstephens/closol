@@ -34,7 +34,10 @@ Returns the last value from the body."
           (let [ e  (random-expression m 10)
                  e2 (finish-expression e)
                  f  (expr-to-function m e2) ]
-            (with-out-file file_expr (pprint e2))
+            (with-out-file file_expr
+              (pprint [:seed seed])
+              (pprint e2)
+              (println (.operators m)))
             (println (slurp file_expr))
             (if (not (seq? e2))
               (do
