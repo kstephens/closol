@@ -35,9 +35,9 @@ Returns the last value from the body."
                  e2 (finish-expression e)
                  f  (expr-to-function m e2) ]
             (with-out-file file_expr
-              (pprint [:seed seed])
-              (pprint e2)
-              (println (.operators m)))
+              (println [:seed seed])
+              (pprint  [:expr e2])
+              (println [:operators (.operators m)]))
             (println (slurp file_expr))
             (if (not (seq? e2))
               (do
