@@ -183,10 +183,11 @@ Returns expr if one of similar complexity cannot be found."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn const-fold-if
-  [expr]
-  (if (and (seq? expr) (= `v-if (first expr)) (number? (second expr)))
-    (apply v-if (rest expr))
-    expr))
+  [x]
+  (let [ expr (constant-fold x) ]
+    (if (and (seq? expr) (= `v-if (first expr)) (number? (second expr)))
+      (apply fv-if (rest expr))
+      expr)))
 
 (def finish-expression
   (fixed-point =
