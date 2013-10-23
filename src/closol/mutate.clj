@@ -189,6 +189,5 @@ Returns expr if one of similar complexity cannot be found."
     expr))
 
 (def finish-expression
-  (while-change-func
-    (fn [expr]
-      (walk const-fold-if const-fold-if (constant-fold expr)))))
+  (fixed-point =
+    #(walk const-fold-if const-fold-if %1)))

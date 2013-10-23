@@ -262,17 +262,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (def expand-expression
-  (while-change-func 
-    (recursive-func
+  (fixed-point =
+    (recursive
       #(rule:applyn unification-rules
-          (rule:applyn simplification-rules
-            (rule:applyn expansion-rules %1))))))
+         (rule:applyn simplification-rules
+           (rule:applyn expansion-rules %1))))))
  
 (def ^:dynamic *expand-and-simplify* true)
 (defn differentiate-expression [expr constants]
   (let [ expr          (expand-expression expr)
          d-rules       (concat constants derivative-rules)
-         apply-d-rules (while-change-func (recursive-func #(rule:applyn d-rules %1))) ]
+         apply-d-rules (fixed-point = (recursive #(rule:applyn d-rules %1))) ]
     (expand-expression (apply-d-rules expr))))
 
 (def ^:dynamic d:*debug* false) 

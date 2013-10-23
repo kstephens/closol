@@ -190,16 +190,20 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn while-change-func [f]
+(defn fixed-point
+  "Create a fixed-point function g where (equality x (f x)) becomes true."
+  [equality f]
   (fn [x]
     (loop [ x x ]
       (let [ x-prime (f x) ]
         ;; (println "x  => " x)
         ;; (println "x' => " x-prime)
-        (if (equal? x-prime x) x
+        (if (equality x-prime x) x
           (recur x-prime))))))
 
-(defn recursive-func [f]
+(defn recursive
+  "Create a recursively applied function."
+  [f]
   (fn rf [x]
     (let [ x2 (f x) ]
       (cond
