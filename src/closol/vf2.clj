@@ -45,7 +45,7 @@
 (defmacro defn1 [name args & body]
   `(do
      (defmulti  ~name (fn ~args ~(vec (map #(list `type %1) args))))
-     (defmethod ~name [V1] ~args
+     (defmethod ~name ^double [^double V1] ~args
        (v1 (do ~@body)))
      (defmethod ~name [V2] ~args
        (V2.
@@ -60,7 +60,7 @@
 (defmacro defn2 [name args & body]
   `(do
      (defmulti  ~name (fn ~args ~(vec (map #(list `type %1) args))))
-     (defmethod ~name [V1 V1] ~args
+     (defmethod ~name ^double [^double V1 ^double V1] ~args
        (v1 (do ~@body)))
      (defmethod ~name [V1 V2] ~args
        (V2.
@@ -72,7 +72,7 @@
            (let [ 
                   ~(args 1) (.y ~(args 1)) ]
              ~@body))))
-     (defmethod ~name [V2 V1] ~args
+     (defmethod ~name [V2 ^double V1] ~args
        (V2.
          (v1
            (let [ ~(args 0) (.x ~(args 0))
