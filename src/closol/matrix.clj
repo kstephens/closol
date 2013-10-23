@@ -55,7 +55,7 @@
   (let [ mmin-max (matrix-min-max m)
          mmin     (first mmin-max)
          mmax     (second mmin-max)
-         mscale   (if (= mmin mmax) 1.0 (float (- mmax mmin)))
+         mscale   (if (= mmin mmax) 1.0 (double (- mmax mmin)))
          fvij     (if (empty? opts) (fn [v i j] v) (first opts)) ]
     (matrix-map m 
       (fn [v i j]
