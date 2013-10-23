@@ -193,13 +193,10 @@
 (defn fixed-point
   "Create a fixed-point function g where (equality x (f x)) becomes true."
   [equality f]
-  (fn [x]
-    (loop [ x x ]
-      (let [ x-prime (f x) ]
-        ;; (println "x  => " x)
-        ;; (println "x' => " x-prime)
-        (if (equality x-prime x) x
-          (recur x-prime))))))
+  #(loop [ x %1 ]
+     (let [ x2 (f x) ]
+       (if (equality x2 x) x
+         (recur x2)))))
 
 (defn recursive
   "Create a recursively applied function."
