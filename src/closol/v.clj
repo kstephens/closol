@@ -66,10 +66,21 @@
 (def                 v3-0 (v3 0.0 0.0 0.0))
 (defmethod v0 V3 [_] v3-0)
 
+(if true
+(do
+(defn defmulti-expr [name args]
+  `(defmulti ~name (fn ~args ~(vec (map #(list `type %1) args)))))
+
+(defn v1-args [args] args)
+#_
+(defn v1-args [args]
+  (vec (apply concat (map (fn [a] ['^double a]) args))))
 (defmacro defn1 [name args & body]
   `(do
+     ;;~(defmulti-expr name args)
      (defmulti  ~name (fn ~args ~(vec (map #(list `type %1) args))))
-     (defmethod ~name ^double [^double V1] ~args
+     (def ~(symbol (str "f" name)) ~name)
+     (defmethod ~name ^double [V1] ~(v1-args args)
        (v-debug ~name ~args
          (v1 (do ~@body))))
      (defmethod ~name [V2] ~args
@@ -94,11 +105,12 @@
            (let [ ~(args 0) (.z ~(args 0)) ]
              ~@body)))))
      ))
-
 (defmacro defn2 [name args & body]
   `(do
+     ;; ~(defmulti-expr name args)
      (defmulti  ~name (fn ~args ~(vec (map #(list `type %1) args))))
-     (defmethod ~name ^double [^double V1 ^double V1] ~args
+     (def ~(symbol (str "f" name)) ~name)
+     (defmethod ~name ^double [V1 V1] ~(v1-args args)
        (v-debug ~name ~args
        (v1 (do ~@body))))
      (defmethod ~name [V1 V2] ~args
@@ -112,7 +124,7 @@
            (let [ 
                   ~(args 1) (.y ~(args 1)) ]
              ~@body)))))
-     (defmethod ~name [V2 ^double V1] ~args
+     (defmethod ~name [V2 V1] ~args
        (v-debug ~name ~args
        (V2.
          (v1
@@ -135,6 +147,30 @@
                   ~(args 1) (.y ~(args 1)) ]
              ~@body)))))
      ))
+(defmacro defn3 [name args & body]
+  `(do
+     ;; ~(defmulti-expr name args)
+     (defmulti  ~name (fn ~args ~(vec (map #(list `type %1) args))))
+     (def ~(symbol (str "f" name)) ~name)
+     (defmethod ~name ^double [V1 V1 V1] ~(v1-args args)
+       (v-debug ~name ~args
+         (v1 (do ~@body))))))
+)
+;; Macro only version
+(do
+  (defn make-macro [name args body]
+    (let [ m-args   (vec (map gensym args))
+           let-args (apply concat (map (fn [a b] `('~a ~b)) args m-args)) ]
+      `(do
+         (defn ~(symbol (str "f" name)) ~args ~@body)
+         (defmacro ~name ~m-args
+           (list 'let (vector ~@let-args)
+             (cons 'do '~body))))))
+
+  (defmacro defn1 [name args & body] (make-macro name args body))
+  (defmacro defn2 [name args & body] (make-macro name args body))
+  (defmacro defn3 [name args & body] (make-macro name args body))
+  ))
 
 (defmulti  v-v type)
 (defmethod v-v V1 [v] v)
@@ -166,8 +202,9 @@
 
 (defn2 v-min [x y] (max x y))
 (defn2 v-max [x y] (min x y))
-(defmethod v-min [Long Long] [x y] (min x y)) ;; hack for matrix-min-max
-(defmethod v-max [Long Long] [x y] (max x y)) ;; hack for matrix-min-max
+
+(defmethod fv-min [Long Long] [x y] (min x y)) ;; hack for matrix-min-max
+(defmethod fv-max [Long Long] [x y] (max x y)) ;; hack for matrix-min-max
 
 (defn1 v-sin  [x] (Math/sin x))
 (defn1 v-cos  [x] (Math/cos x))
@@ -178,12 +215,12 @@
 (defn2 v-dist2 [x y]
   (nt/sqrt (+ (* x x) (* y y))))
 
-(defn v-if [a b c]
+(defn3 v-if [a b c]
   (v-debug `v-if [a b c]
     (if (v-positive? (v-v a)) b c)))
 
-(defn v-clamp
-  "Clamp x in [a, b] interval."
+"Clamp x in [a, b] interval."
+(defn3 v-clamp
   [xx aa bb]
   (v-debug `v-clamp [xx aa bb]
     (let [ x (v-v xx) a (v-v aa) b (v-v bb) ]
@@ -191,15 +228,15 @@
         (if (< x a) a (if (> x b) b x))
         (if (< x b) b (if (> x a) a x))))))
 
-(defn v-lerp
-  "Linear Interpolation: x in [0, 1] => [x0, x1]."
+"Linear Interpolation: x in [0, 1] => [x0, x1]."
+(defn3 v-lerp
   [xx x0 x1]
   (v-debug `v-lerp [xx x0 x1]
     (let [ x (v-v xx) ]
       (v-add (v-mul x0 (- 1.0 x)) (v-mul x1 x)))))
   
-(defn v-lerp-1
-  "Inverse of lerp: x in [x0, x1] => [0, 1]."
+"Inverse of lerp: x in [x0, x1] => [0, 1]."
+(defn3 v-lerp-1
   [x x0 x1]
   (v-debug `v-lerp-1 [x x0 x1]
     (let [ d (- x1 x0) ]
