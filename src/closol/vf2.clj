@@ -2,10 +2,10 @@
   (:require
     [clojure.math.numeric-tower :as nt]))
 
-(declare v-real-part)
+(declare v-v)
 (defn positive?  [x] (> x 0))
 (defn float-nan? [x] (and (float? x) (or (Double/isNaN x) (Double/isInfinite x))))
-(defn v-bint     [x] (int (mod (v-real-part x) 256)))
+(defn v-bint     [x] (int (mod (v-v x) 256)))
 
 ;; Types
 (def V1 java.lang.Double)
@@ -94,10 +94,10 @@
              ~@body))))
      ))
 
-(defmulti v-real-part type)
-(defmethod v-real-part V1 [v] v)
-(defmethod v-real-part V2 [v] (+ (.x v) (.y v)))
-(defmethod v-real-part V3 [v] (+ (.x v) (.y v) (.z v)))
+(defmulti v-v type)
+(defmethod v-v V1 [v] v)
+(defmethod v-v V2 [v] (+ (.x v) (.y v)))
+(defmethod v-v V3 [v] (+ (.x v) (.y v) (.z v)))
 
 (defn1 v-neg   [x] (- x))
 (defn1 v-floor [x] (nt/floor x))
@@ -127,7 +127,7 @@
   (nt/sqrt (+ (* x x) (* y y))))
 
 (defn v-if [a b c]
-  (if (positive? (v-real-part a)) b c))
+  (if (positive? (v-v a)) b c))
 
 (defn v-clamp
   "Clamp x in [a, b] interval."
@@ -147,7 +147,7 @@
 (defn v-lerp
   "Linear Interpolation: x in [0, 1] => [x0, x1]."
   [xx x0 x1]
-  (let [ x (v-real-part xx) ]
+  (let [ x (v-v xx) ]
     (v-add (v-mul x0 (- 1.0 x)) (v-mul x1 x))))
   
 (defn v-lerp-1
