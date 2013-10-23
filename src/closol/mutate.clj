@@ -35,7 +35,14 @@
 
 (defn expr-to-function
   [m expr]
-  (binding [*ns* *ns*] (eval `(fn ~(.variables m) ~expr))))
+  (binding [*ns* *ns*]
+    (eval
+      `(fn ~(vec
+              (apply concat
+                (map (fn [v]
+                      `(^double ~v))
+                  (.variables m))))
+         ~expr))))
 
 (defn random-expression
   "Generates a random expression of max depth."
