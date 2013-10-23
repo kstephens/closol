@@ -41,8 +41,8 @@
     (fn [i j] (fvij (matrix-get m i j) i j))))
  
 (defn matrix-min-max [m]
-  (let [ min (reduce v-min (map #(reduce v-min %1) (.data m)))
-         max (reduce v-max (map #(reduce v-max %1) (.data m))) ]
+  (let [ min (reduce fv-min (map #(reduce fv-min %1) (.data m)))
+         max (reduce fv-max (map #(reduce fv-max %1) (.data m))) ]
     [min max]))
 
 (defn matrix-fix-float [m]
