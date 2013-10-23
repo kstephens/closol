@@ -1,6 +1,6 @@
 (ns closol.matrix
   (:require
-    [closol.vfunc :refer :all])
+    [closol.vf2 :refer :all])
   (:import
     (java.awt Color Dimension BorderLayout Image)
     (java.awt.image BufferedImage)
@@ -23,10 +23,10 @@
 (defn matrix-fxy [w h xmin xmax ymin ymax fxy]
   (matrix w h
     (fn [i j]
-      (let [ xf (v-lerp-1 i 0 (- w 1))
-             yf (v-lerp-1 j 0 (- h 1))
-             x (v-lerp xf xmin xmax)
-             y (v-lerp yf ymin ymax) ]
+      (let [ xf (v-lerp-1 (double i) 0.0 (double (- w 1)))
+             yf (v-lerp-1 (double j) 0.0 (double (- h 1)))
+             x (v-lerp xf (double xmin) (double xmax))
+             y (v-lerp yf (double ymin) (double ymax)) ]
         (fxy x y)))))
 
 (defn matrix-data   [m] (.data m))
@@ -41,13 +41,13 @@
     (fn [i j] (fvij (matrix-get m i j) i j))))
  
 (defn matrix-min-max [m]
-  (let [ min (apply min (map #(apply min %1) (.data m)))
-         max (apply max (map #(apply max %1) (.data m))) ]
+  (let [ min (reduce v-min (map #(reduce v-min %1) (.data m)))
+         max (reduce v-max (map #(reduce v-max %1) (.data m))) ]
     [min max]))
 
 (defn matrix-fix-float [m]
   (matrix-map m
-    (fn [v i j] (v-real-part v))))
+    (fn [v i j] (v-v v))))
 
  ;; Maps elements:
  ;; [min, max] => [vmin, vmax].
@@ -65,13 +65,15 @@
   (every? #(every? zero? %1) (.data m)))
 
 (defn matrix-graymap [m]
-  (matrix-range m 0 255.9999 (fn [v i j] (int (v-real-part v)))))
+  (matrix-range m 0.0 255.9999 (fn [v i j] (v-int (v-v v)))))
 
 (defn matrix-image [m]
   (let [ image (BufferedImage. (.width m) (.height m) BufferedImage/TYPE_INT_ARGB)
          g (.getGraphics image) ]
     (matrix-map m (fn [v i j]
-                    (.setColor g (new Color (v-i0 v) (v-i1 v) (v-i2 v)))
+                    (let [ c1 (v-int (v-1 v)) c2 (v-int (v-2 v)) c3 (v-int (v-3 v)) ]
+                      ;; (println (map type [c1 c2 c3]))
+                      (.setColor g (new Color c1 c2 c3)))
                     (.fillRect g j i 1 1)))
     image))
 

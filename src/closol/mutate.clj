@@ -4,41 +4,10 @@
     [closol.match  :refer :all]
     [closol.expr   :refer :all]
     [closol.random :refer :all]
-    [closol.vfunc  :refer :all]))
+    [closol.vf2    :refer :all]))
 
 (def variables '[x y])
-(def operators '[
-      ;; UOPs
-      [closol.vfunc/v-neg 1]
-      [closol.vfunc/v-cos 1]
-      [closol.vfunc/v-sin 1]
-      [closol.vfunc/v-acos 1]
-      [closol.vfunc/v-asin 1]
-      [closol.vfunc/v-floor 1]
-      [closol.vfunc/v-magnitude 1]
-                        
-      ;; BOPs
-      [closol.vfunc/v-add 2]
-      [closol.vfunc/v-sub 2]
-      [closol.vfunc/v-mul 2]
-      [closol.vfunc/v-div 2]
-      [closol.vfunc/v-mod 2]
-      [closol.vfunc/v-expt 2]
-      [closol.vfunc/v-atan2 2]
-      [closol.vfunc/v-bit-xor 2]
-      [closol.vfunc/v-bit-and 2]
-      [closol.vfunc/v-bit-or  2]
-      [closol.vfunc/v-bit-shift-left  2]
-      [closol.vfunc/v-bit-shift-right 2]
-      [closol.vfunc/v-dist2 2]
-                 
-      ;; TOPs
-      [closol.vfunc/v-if 3]
-      [closol.vfunc/v-clamp 3]
-      [closol.vfunc/v-lerp 3]
-      [closol.vfunc/v-lerp-1 3]
-      ])
-
+(def operators closol.vf2/functions)
 (defrecord Mutator [random variables operators
                      operator-name-map operator-arity-map])
 
