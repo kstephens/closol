@@ -46,14 +46,13 @@
     [min max]))
 
 (defn matrix-fix-float [m]
-  (matrix-map m
-    (fn [v i j] (v-v v))))
+  (matrix-map m (fn [v i j] (v-v v))))
 
  ;; Maps elements:
  ;; [min, max] => [vmin, vmax].
 (defn matrix-range [m vmin vmax & opts]
   (let [ mmin-max (matrix-min-max m)
-         mmin     (first mmin-max)
+         mmin     (first  mmin-max)
          mmax     (second mmin-max)
          mscale   (if (= mmin mmax) 1.0 (double (- mmax mmin)))
          fvij     (if (empty? opts) (fn [v i j] v) (first opts)) ]
