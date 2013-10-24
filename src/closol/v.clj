@@ -158,6 +158,7 @@
 )
 ;; Macro only version
 (do
+  ;; Is this just a rewrite of definline?
   (defn make-macro [name args body]
     (let [ m-args   (vec (map gensym args))
            let-args (mapcat (fn [a b] `('~a ~b)) args m-args) ]
