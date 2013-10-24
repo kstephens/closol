@@ -243,7 +243,7 @@
       (if (zero? d) (v0 x0) (v-div (v-sub x x0) d)))))
 
 (def functions
-  (partition 2
+  (sort-by first (partition 2
     `(
        v-neg 1
        v-cos 1
@@ -277,4 +277,4 @@
        v-clamp 3
        v-lerp 3
        v-lerp-1 3
-     )))
+     ))))
