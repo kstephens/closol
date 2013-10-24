@@ -41,17 +41,17 @@
 (defmethod v-2 :default [v] (double v))
 (defmethod v-3 :default [v] (double v))
 
-(defmethod v-1 V1 [v] v)
-(defmethod v-2 V1 [v] v)
-(defmethod v-3 V1 [v] v)
+(defmethod v-1 V1 [^V1 v] v)
+(defmethod v-2 V1 [^V1 v] v)
+(defmethod v-3 V1 [^V1 v] v)
 
-(defmethod v-1 V2 [v] (.x v))
-(defmethod v-2 V2 [v] (.y v))
-(defmethod v-3 V2 [v] (.y v))
+(defmethod v-1 V2 [^V2 v] (.x v))
+(defmethod v-2 V2 [^V2 v] (.y v))
+(defmethod v-3 V2 [^V2 v] (.y v))
 
-(defmethod v-1 V3 [v] (.x v))
-(defmethod v-2 V3 [v] (.y v))
-(defmethod v-3 V3 [v] (.z v))
+(defmethod v-1 V3 [^V3 v] (.x v))
+(defmethod v-2 V3 [^V3 v] (.y v))
+(defmethod v-3 V3 [^V3 v] (.z v))
 
 ;; Constructors
 (defn v1 [x]     (double (v-1 x)))
@@ -158,6 +158,7 @@
 )
 ;; Macro only version
 (do
+  ;; Is this just a rewrite of definline?
   (defn make-macro [name args body]
     (let [ m-args   (vec (map gensym args))
            let-args (mapcat (fn [a b] `('~a ~b)) args m-args) ]
@@ -181,6 +182,7 @@
 (defn1 v-neg   [x] (- x))
 (defn1 v-floor [x] (nt/floor x))
 (defn1 v-abs   [x] (Math/abs x))
+(defn1 v-log   [x] (v-exc (v-safe-float (Math/log (v-abs x))) 0.0))
 
 (defn2 v-add [x y] (+ x y))
 (defn2 v-sub [x y] (- x y))
@@ -252,6 +254,7 @@
        v-asin 1
        v-floor 1
        v-abs 1
+       v-log 1
 
        v-add 2
        v-sub 2

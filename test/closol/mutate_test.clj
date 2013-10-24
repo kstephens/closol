@@ -6,10 +6,20 @@
     [closol.mutate :refer :all]
     [closol.random :refer :all]
     [closol.matrix :refer :all]
+    [clojure.string :as string]
     [clojure.java.io :refer :all])
   (:import
     (java.io File))
   )
+
+(def current-pid
+  "Get current process PID"
+  (memoize
+   (fn []
+     (-> (java.lang.management.ManagementFactory/getRuntimeMXBean)
+         (.getName)
+         (string/split #"@")
+         (first)))))
 
 (defmacro with-out-file
   "Evaluates exprs in a context in which *out* is bound to a file.
@@ -22,8 +32,8 @@ Returns the last value from the body."
 (defn make-image-from-seed
   [seed]
   (let [ m          (make-mutator (make-random seed))
-         file_png   (str "tmp/test" seed ".png")
-         file_expr  (str "tmp/test" seed ".expr") ]
+         file_png   (str "tmp/png/test" seed ".png")
+         file_expr  (str "tmp/expr/test" seed ".expr") ]
     (if (.exists (File. file_expr))
       (do
         (println "  ### File " file_expr " already exists.")
@@ -37,7 +47,7 @@ Returns the last value from the body."
             (with-out-file file_expr
               (println [:seed seed])
               (pprint  [:expr e2])
-              (println [:operators (.operators m)]))
+              #_ (println [:operators (.operators m)]))
             (println (slurp file_expr))
             (if (not (seq? e2))
               (do
@@ -53,7 +63,12 @@ Returns the last value from the body."
                     file_png)
                   )))))))))
 
+(def rnd (make-random (Integer. (current-pid))))
+
 (deftest generate-image-test
   (testing "random-expression image"
-    (doall (take 10 (filter make-image-from-seed (range))))
+    (doall
+      (filter make-image-from-seed
+              (map (fn [x] (dosync (rnd 10000000)))
+                   (take 25 (range)))))
     ))
