@@ -49,7 +49,7 @@ Rewrite as a let* form with all complex subexpressions as local bindings to new 
              binding-exprs  (expand-binding-exprs be)
              ; _ (println (list 'binding-exprs= binding-exprs))
              ;; Map CSEs to bindings.
-             expr-bindings  (apply hash-map (apply concat (map reverse be)))
+             expr-bindings  (apply hash-map (mapcat reverse be))
              ; _ (println (list 'expr-bindings= expr-bindings))
              ;; Replace CSEs in expr with bindings.
              replaced-expr  (walk

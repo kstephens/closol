@@ -5,7 +5,7 @@
 #_
 (defmacro v-debug [name args & body]
   `(do
-     (println ~(str name) ~@(apply concat (map (fn [e] `(:arg ~(str e) :value ~e :type (type ~e))) args)))
+     (println ~(str name) ~@(mapcat (fn [e] `(:arg ~(str e) :value ~e :type (type ~e))) args))
      (let [ result# (do ~@body) ]
        (println ~(str name) :result result#)
        result#)))
@@ -74,7 +74,7 @@
 (defn v1-args [args] args)
 #_
 (defn v1-args [args]
-  (vec (apply concat (map (fn [a] ['^double a]) args))))
+  (vec (mapcat (fn [a] ['^double a]) args)))
 (defmacro defn1 [name args & body]
   `(do
      ;;~(defmulti-expr name args)
@@ -160,7 +160,7 @@
 (do
   (defn make-macro [name args body]
     (let [ m-args   (vec (map gensym args))
-           let-args (apply concat (map (fn [a b] `('~a ~b)) args m-args)) ]
+           let-args (mapcat (fn [a b] `('~a ~b)) args m-args) ]
       `(do
          (defn ~(symbol (str "f" name)) ~args ~@body)
          (defmacro ~name ~m-args

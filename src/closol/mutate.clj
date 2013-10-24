@@ -37,11 +37,7 @@
   [m expr]
   (binding [*ns* *ns*]
     (eval
-      `(fn ~(vec
-              (apply concat
-                (map (fn [v]
-                      `(^double ~v))
-                  (.variables m))))
+      `(fn ~(vec (mapcat (fn [v] `(^double ~v)) (.variables m)))
          ~expr))))
 
 (defn random-expression

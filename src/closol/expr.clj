@@ -6,8 +6,7 @@
   (cond
     (seq? expr)  (if (empty? expr) '()
                    (cons expr
-                     (apply concat
-                       (map subexpressions (rest expr)))))
+                     (mapcat subexpressions (rest expr))))
     :else        (list expr)))
 
 (defn expression-complexity
