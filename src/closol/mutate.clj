@@ -33,13 +33,6 @@
 (defn times [n proc]
   (map (fn [_] (proc)) (range 0 n)))
 
-(defn expr-to-function
-  [m expr]
-  (binding [*ns* *ns*]
-    (eval
-      `(fn ~(vec (mapcat (fn [v] `(^double ~v)) (.variables m)))
-         ~expr))))
-
 (defn random-expression
   "Generates a random expression of max depth."
   [cntx depth]
@@ -51,6 +44,10 @@
       (cons (first ro) 
         (times (second ro) 
           #(random-expression cntx depth))))))
+
+(defn expr-to-function
+  [m expr]
+  (expr-to-fn expr (.variables m)))
 
 (defn random-expression-of-depth
   "Generates a random expression of depth."
@@ -185,13 +182,4 @@ Returns expr if one of similar complexity cannot be found."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn const-fold-if
-  [x]
-  (let [ expr (constant-fold x) ]
-    (if (and (seq? expr) (= `v-if (first expr)) (number? (second expr)))
-      (apply fv-if (rest expr))
-      expr)))
-
-(def finish-expression
-  (fixed-point =
-    #(walk const-fold-if const-fold-if %1)))
+(def finish-expression finish-v-expression)

@@ -1,6 +1,10 @@
 (ns closol.v
   (:require
-    [clojure.math.numeric-tower :as nt]))
+    [clojure.math.numeric-tower :as nt]
+    [clojure.pprint :as pp]
+    [clojure.walk  :as walk]
+    [closol.match :as match]
+    [closol.expr :as expr]))
 
 #_
 (defmacro v-debug [name args & body]
@@ -16,7 +20,7 @@
 (defmacro v-exc [expr val]
   `(try
      ~expr
-     (catch java.lang.ArithmeticException e# ~val)
+     (catch java.lang.ArithmeticException   e# ~val)
      (catch java.lang.NumberFormatException e# ~val)))
 
 (declare v-v)
@@ -66,7 +70,9 @@
 (def                 v3-0 (v3 0.0 0.0 0.0))
 (defmethod v0 V3 [_] v3-0)
 
-(if true
+(def use-multimethods false)
+
+(if use-multimethods
 (do
 (defn defmulti-expr [name args]
   `(defmulti ~name (fn ~args ~(vec (map #(list `type %1) args)))))
@@ -155,6 +161,7 @@
      (defmethod ~name ^double [V1 V1 V1] ~(v1-args args)
        (v-debug ~name ~args
          (v1 (do ~@body))))))
+
 )
 ;; Macro only version
 (do
@@ -204,9 +211,12 @@
 (defn2 v-min [x y] (max x y))
 (defn2 v-max [x y] (min x y))
 
-(defmethod fv-min [Long Long] [x y] (min x y)) ;; hack for matrix-min-max
-(defmethod fv-max [Long Long] [x y] (max x y)) ;; hack for matrix-min-max
-
+(if use-multimethods
+  (do
+    (defmethod fv-min [Long Long] [x y] (min x y)) ;; hack for matrix-min-max
+    (defmethod fv-max [Long Long] [x y] (max x y)) ;; hack for matrix-min-max
+    ))
+    
 (defn1 v-sin  [x] (Math/sin x))
 (defn1 v-cos  [x] (Math/cos x))
 (defn1 v-asin [x] (v-exc (Math/asin (mod x 1.0)) 0.0))
@@ -242,6 +252,40 @@
   (v-debug `v-lerp-1 [x x0 x1]
     (let [ d (- x1 x0) ]
       (if (zero? d) (v0 x0) (v-div (v-sub x x0) d)))))
+
+(defn expr-to-fn
+  [expr variables]
+  ;; (pp/pprint expr)
+  (binding [*ns* *ns*]
+    (in-ns 'closol.v)
+    (let [expanded-expr (macroexpand expr)]
+      (pp/pprint [:expanded-expr expanded-expr])
+      (eval
+        `(fn ~(vec (mapcat (fn [v] `(^double ~v)) variables))
+           ~expanded-expr)))))
+
+(defn v-constant-fold
+  [expr]
+  (binding [*ns* *ns*]
+    (in-ns 'closol.v)
+    ;; (pp/pprint [:const-fold expr])
+    (doall (if (seq? expr) expr [ ]))
+    (expr/constant-fold expr)))
+
+(defn const-fold-if
+  [x]
+  (let [ expr (v-constant-fold x) ]
+    (if (and (seq? expr) (= `v-if (first expr)) (number? (second expr)))
+      (apply fv-if (rest expr))
+      expr)))
+
+(defn finish-v-expression
+  [expr]
+  (binding [*ns* *ns*]
+    (in-ns 'closol.v)
+    (let [expanded-expr ((match/fixed-point = #(walk/walk macroexpand identity %1)) expr)]
+      (pp/pprint [:expanded-expr expanded-expr])
+      ((match/fixed-point = #(walk/walk const-fold-if const-fold-if %1)) expanded-expr))))
 
 (def functions
   (sort-by first (partition 2
