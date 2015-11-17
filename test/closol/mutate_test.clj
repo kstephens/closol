@@ -32,8 +32,8 @@ Returns the last value from the body."
 (defn make-image-from-seed
   [seed]
   (let [ m          (make-mutator (make-random seed))
-         file_png   (str "tmp/test" seed ".png")
-         file_expr  (str "tmp/test" seed ".expr") ]
+         file_png   (str "tmp/png/test" seed ".png")
+         file_expr  (str "tmp/expr/test" seed ".expr") ]
     (if (.exists (File. file_expr))
       (do
         (println "  ### File " file_expr " already exists.")
@@ -47,7 +47,7 @@ Returns the last value from the body."
             (with-out-file file_expr
               (println [:seed seed])
               (pprint  [:expr e2])
-              (println [:operators (.operators m)]))
+              #_ (println [:operators (.operators m)]))
             (println (slurp file_expr))
             (if (not (seq? e2))
               (do
