@@ -6,10 +6,20 @@
     [closol.mutate :refer :all]
     [closol.random :refer :all]
     [closol.matrix :refer :all]
+    [clojure.string :as string]
     [clojure.java.io :refer :all])
   (:import
     (java.io File))
   )
+
+(def current-pid
+  "Get current process PID"
+  (memoize
+   (fn []
+     (-> (java.lang.management.ManagementFactory/getRuntimeMXBean)
+         (.getName)
+         (string/split #"@")
+         (first)))))
 
 (defmacro with-out-file
   "Evaluates exprs in a context in which *out* is bound to a file.
@@ -53,7 +63,12 @@ Returns the last value from the body."
                     file_png)
                   )))))))))
 
+(def rnd (make-random (Integer. (current-pid))))
+
 (deftest generate-image-test
   (testing "random-expression image"
-    (doall (take 10 (filter make-image-from-seed (range))))
+    (doall
+      (filter make-image-from-seed
+              (map (fn [x] (dosync (rnd 10000000)))
+                   (take 25 (range)))))
     ))
