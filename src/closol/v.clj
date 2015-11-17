@@ -182,6 +182,7 @@
 (defn1 v-neg   [x] (- x))
 (defn1 v-floor [x] (nt/floor x))
 (defn1 v-abs   [x] (Math/abs x))
+(defn1 v-log   [x] (v-exc (v-safe-float (Math/log (v-abs x))) 0.0))
 
 (defn2 v-add [x y] (+ x y))
 (defn2 v-sub [x y] (- x y))
@@ -253,6 +254,7 @@
        v-asin 1
        v-floor 1
        v-abs 1
+       v-log 1
 
        v-add 2
        v-sub 2
