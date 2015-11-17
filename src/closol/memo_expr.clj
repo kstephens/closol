@@ -46,14 +46,13 @@
 
 (defn memoized-subexpression
   [se]
-  (if (parameterized? se)
-    (let [f        (generate-variable)
-          params   (sort (parameters se))
-          func     `(memoize (fn ~(vec params) ~se))
-          expr     (cons f params)]
-      (list expr f func))
-    (list se false false)))
-
+  (let [params (sort (parameters se))]
+    (if (and (application? se) (not (empty? params)))
+      (let [f        (generate-variable)
+            func     `(memoize (fn ~(vec params) ~se))
+            expr     (cons f params)]
+        (list expr f func))
+      (list se false false))))
 
 (declare memoize-traverse)
 
