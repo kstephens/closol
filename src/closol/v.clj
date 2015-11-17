@@ -41,17 +41,17 @@
 (defmethod v-2 :default [v] (double v))
 (defmethod v-3 :default [v] (double v))
 
-(defmethod v-1 V1 [v] v)
-(defmethod v-2 V1 [v] v)
-(defmethod v-3 V1 [v] v)
+(defmethod v-1 V1 [^V1 v] v)
+(defmethod v-2 V1 [^V1 v] v)
+(defmethod v-3 V1 [^V1 v] v)
 
-(defmethod v-1 V2 [v] (.x v))
-(defmethod v-2 V2 [v] (.y v))
-(defmethod v-3 V2 [v] (.y v))
+(defmethod v-1 V2 [^V2 v] (.x v))
+(defmethod v-2 V2 [^V2 v] (.y v))
+(defmethod v-3 V2 [^V2 v] (.y v))
 
-(defmethod v-1 V3 [v] (.x v))
-(defmethod v-2 V3 [v] (.y v))
-(defmethod v-3 V3 [v] (.z v))
+(defmethod v-1 V3 [^V3 v] (.x v))
+(defmethod v-2 V3 [^V3 v] (.y v))
+(defmethod v-3 V3 [^V3 v] (.z v))
 
 ;; Constructors
 (defn v1 [x]     (double (v-1 x)))
