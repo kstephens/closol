@@ -21,14 +21,22 @@
 
 (declare v-v)
 (defn v0 [_] 0.0)
+(defn v-v [x] (double x))
 (defn v-1 [x] x)
 (defn v-2 [x] x)
 (defn v-3 [x] x)
 
-(defmulti fv-min type)
-(defmethod fv-min [Long Long] [x y] (min x y)) ;; hack for matrix-min-max
-(defmulti fv-max type)
-(defmethod fv-max [Long Long] [x y] (max x y)) ;; hack for matrix-min-max
+(defn v-min-max
+  ([s [m M]]
+   (if (empty? s)
+     [m M]
+     (let [v (first s)
+           m (if (< v m) v m)
+           M (if (< M v) v M)]
+       (recur (rest s) [m M]))))
+  ([s]
+   (v-min-max (rest s) [(first s) (first s)])))
+
 (defn fv-if [a b c] (if (> (v-1 a) 0.0) b c))
 
 (defn v-positive?  [x] (> x 0.0))
@@ -122,4 +130,4 @@
     (let [ d (- x1 x0) ]
       (if (zero? d) (v0 x0) (v-div (v-sub x x0) d)))))
 
-(def functions (sort-by first (persistent! functions-acc)))
+(def functions (seq (persistent! functions-acc)))

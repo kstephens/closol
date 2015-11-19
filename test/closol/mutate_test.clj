@@ -6,6 +6,7 @@
     [closol.mutate :refer :all]
     [closol.random :refer :all]
     [closol.matrix :refer :all]
+    [closol.sample :refer [sample]]
     [clojure.string :as string]
     [clojure.java.io :refer :all])
   (:import
@@ -53,13 +54,15 @@ Returns the last value from the body."
               (do
                 (println "  ### Image for seed" seed "is linear!")
                 false)
-              (let [ fxy (matrix-graymap (matrix-fix-float (matrix-fxy 512 512 -10.0 10.0 -10.0 10.0 f))) ]
-                (if (matrix-zero? fxy)
+              (let [m (matrix-graymap
+                       (matrix-fix-float
+                        (matrix-fxy 512 512 -10.0 10.0 -10.0 10.0 f))) ]
+                (if (matrix-zero? m)
                   (do
                     (println "  ### Image of seed" seed "is all zeros!")
                     false)
                   (do
-                    (image-to-file (matrix-image fxy) file_png)
+                    (image-to-file (matrix-image m) file_png)
                     file_png)
                   )))))))))
 
@@ -70,5 +73,5 @@ Returns the last value from the body."
     (doall
       (filter make-image-from-seed
               (map (fn [x] (dosync (rnd 10000000)))
-                   (take 25 (range)))))
+                   (take 100 (range)))))
     ))
