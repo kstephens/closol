@@ -1,6 +1,7 @@
 (ns closol.matrix
   (:require
-    [closol.v :refer :all])
+    [closol.v :refer :all]
+    [closol.sample :refer [sample]])
   (:import
     (java.awt Color Dimension BorderLayout Image)
     (java.awt.image BufferedImage)
@@ -21,13 +22,23 @@
            w h))
 
 (defn matrix-fxy [w h xmin xmax ymin ymax fxy]
-  (matrix w h
-    (fn [i j]
-      (let [ xf (v-lerp-1 (double i) 0.0 (double (- w 1)))
-             yf (v-lerp-1 (double j) 0.0 (double (- h 1)))
-             x (v-lerp xf (double xmin) (double xmax))
-             y (v-lerp yf (double ymin) (double ymax)) ]
-        (fxy x y)))))
+  (let [xmin (double xmin)
+        xmax (double xmax)
+        ymin (double ymin)
+        ymax (double ymax)
+        w1 (double (- w 1))
+        h1 (double (- h 1))
+        xf #(v-lerp-1 (double %) 0.0 w1)
+        yf #(v-lerp-1 (double %) 0.0 h1)
+        xv #(v-lerp (xf %) xmin xmax)
+        yv #(v-lerp (yf %) ymin ymax)
+        xi (vec (map xv (range 0 (+ w 1))))
+        yi (vec (map yv (range 0 (+ h 1))))
+        f  (sample fxy)]
+    (matrix w h
+            (fn [i j]
+              (f (xi i) (xi (+ i 1))
+                 (yi j) (yi (+ j 1)))))))
 
 (defn matrix-data   [m] (.data m))
 (defn matrix-width  [m] (.width m))
@@ -41,9 +52,7 @@
     (fn [i j] (fvij (matrix-get m i j) i j))))
  
 (defn matrix-min-max [m]
-  (let [ min (reduce fv-min (map #(reduce fv-min %1) (.data m)))
-         max (reduce fv-max (map #(reduce fv-max %1) (.data m))) ]
-    [min max]))
+  (v-min-max (mapcat identity (.data m))))
 
 (defn matrix-fix-float [m]
   (matrix-map m (fn [v i j] (v-v v))))
@@ -51,11 +60,9 @@
  ;; Maps elements:
  ;; [min, max] => [vmin, vmax].
 (defn matrix-range [m vmin vmax & opts]
-  (let [ mmin-max (matrix-min-max m)
-         mmin     (first  mmin-max)
-         mmax     (second mmin-max)
-         mscale   (if (= mmin mmax) 1.0 (double (- mmax mmin)))
-         fvij     (if (empty? opts) (fn [v i j] v) (first opts)) ]
+  (let [[mmin mmax]  (matrix-min-max m)
+        mscale       (if (= mmin mmax) 1.0 (double (- mmax mmin)))
+        fvij         (if (empty? opts) (fn [v i j] v) (first opts)) ]
     (matrix-map m 
       (fn [v i j]
         (fvij (v-lerp (/ (- v mmin) mscale) vmin vmax) i j)))))
@@ -70,7 +77,9 @@
   (let [ image (BufferedImage. (.width m) (.height m) BufferedImage/TYPE_INT_ARGB)
          g (.getGraphics image) ]
     (matrix-map m (fn [v i j]
-                    (let [ c1 (v-int (v-1 v)) c2 (v-int (v-2 v)) c3 (v-int (v-3 v)) ]
+                    (let [c1 (v-int (v-1 v))
+                          c2 (v-int (v-2 v))
+                          c3 (v-int (v-3 v)) ]
                       ;; (println (map type [c1 c2 c3]))
                       (.setColor g (new Color c1 c2 c3)))
                     (.fillRect g j i 1 1)))
